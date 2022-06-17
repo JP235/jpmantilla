@@ -10,12 +10,12 @@ export const errorsSlice = createSlice({
 	name: "errors",
 	initialState,
 	reducers: {
-		dispplayError: (state, action) => {
-			state.msg = action.payload.msg;
-			state.status = action.payload.status;
-		},
 		addError: (state, action) => {
 			state.errors.push(action.payload);
+		},
+		displayError: (state, action) => {
+			state.msg = action.payload.msg;
+			state.status = action.payload.status;
 		},
 		returnErrors: (state, action) => {
 			state.msg = action.payload.msg;
@@ -25,6 +25,6 @@ export const errorsSlice = createSlice({
 	},
 });
 
-export const { addError, dispplayError, returnErrors } = errorsSlice.actions;
+export const { addError, displayError, returnErrors } = errorsSlice.actions;
 
 export default errorsSlice.reducer;

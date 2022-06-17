@@ -4,55 +4,51 @@ import { tokenConfig } from "../tokenConfig";
 import { createMessage } from "../../common/utils/messagesSlice";
 import { returnErrors } from "../../common/utils/errorsSlice";
 
-import {
-	loadingBoards,
-	boardsLoaded,
-	deletedGame,
-} from "./boardsAPISlice";
+import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
 export const getBoards = () => (dispatch, getState) => {
 	dispatch(loadingBoards());
-  axios
-		.get("https://klotski-api.herokuapp.com/api/boards/", tokenConfig(getState))
+	axios
+		.get("http://127.0.0.1:8000/api/boards/", tokenConfig(getState))
 		.then((res) => {
 			dispatch(boardsLoaded(res.data));
-      dispatch(
-        createMessage({
-          type: "Loaded boards",
-          n_boards: getState().boardsAPI.boards.length,
-          time: Date().toString()
-        })
-        );
-      })
-      .catch((err) => {
-      console.log("Can't load boards",err);
-      dispatch(
-        returnErrors({
-          msg: err.response.data,
-          status: err.response.status,
-        })
-      );
-    })
+			dispatch(
+				createMessage({
+					type: "Loaded boards",
+					n_boards: getState().boardsAPI.boards.length,
+					time: Date().toString(),
+				})
+			);
+		})
+		.catch((err) => {
+			console.log("Can't load boards", err);
+			dispatch(
+				returnErrors({
+					msg: err.response.data,
+					status: err.response.status,
+				})
+			);
+		});
 };
 
 export const deleteBoard = (gameCode) => (dispatch, getState) => {
 	axios
-		.delete(`https://klotski-api.herokuapp.com/api/game/${gameCode}/`, tokenConfig(getState))
+		.delete(
+			`http://127.0.0.1:8000/api/game/${gameCode}/`,
+			tokenConfig(getState)
+		)
 		.then((res) => {
-      dispatch(deletedGame(gameCode));
+			dispatch(deletedGame(gameCode));
 			dispatch(
-        createMessage({
-          type: "Deleted board",
-          boardCode: gameCode,
-          time: Date().toString(),
-        })
-      );
+				createMessage({
+					type: "Deleted board",
+					boardCode: gameCode,
+					time: Date().toString(),
+				})
+			);
 		})
 		.catch((err) => {
-      dispatch(
-        returnErrors(err)
-      );
-    })
+			console.log(err);
+			dispatch(returnErrors(err));
+		});
 };
-
-

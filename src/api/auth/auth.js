@@ -22,6 +22,7 @@ export const loadUser = () => (dispatch, getState) => {
 			dispatch(userLoaded(res.data));
 		})
 		.catch((err) => {
+      console.log(err)
 			dispatch(authError());
 			dispatch(
 				returnErrors({
@@ -73,13 +74,12 @@ export const register =
 				"Content-Type": "application/json",
 			},
 		};
-    console.log(email,password);
+    console.log("register");
 
 		// Request Body
 		const body = JSON.stringify({ email, password });
-    console.log(body)
 		axios
-			.post("/api/auth/register", body, config)
+			.post("https://klotski-api.herokuapp.com/api/auth/register", body, config)
 			.then((res) => {
 				dispatch(registerSuccess(res.data));
 			})
@@ -97,6 +97,7 @@ export const logout = () => (dispatch, getState) => {
 			dispatch(logoutSuccess());
 		})
 		.catch((err) => {
+      console.log(err)
 			dispatch(
 				returnErrors({
 					msg: err.response.data,
