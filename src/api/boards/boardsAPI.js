@@ -13,7 +13,7 @@ import {
 export const getBoards = () => (dispatch, getState) => {
 	dispatch(loadingBoards());
   axios
-		.get("https://klotski-backend.herokuapp.com/api/boards/", tokenConfig(getState))
+		.get("https://klotski-api.herokuapp.com/api/boards/", tokenConfig(getState))
 		.then((res) => {
 			dispatch(boardsLoaded(res.data));
       dispatch(
@@ -37,7 +37,7 @@ export const getBoards = () => (dispatch, getState) => {
 
 export const deleteBoard = (gameCode) => (dispatch, getState) => {
 	axios
-		.delete(`https://klotski-backend.herokuapp.com/api/game/${gameCode}/`, tokenConfig(getState))
+		.delete(`https://klotski-api.herokuapp.com/api/game/${gameCode}/`, tokenConfig(getState))
 		.then((res) => {
       dispatch(deletedGame(gameCode));
 			dispatch(
