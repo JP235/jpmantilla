@@ -1,0 +1,41 @@
+.new-game-container {
+	position: relative;
+	margin: auto;
+	width: 100%;
+	border: 1px solid black;
+}
+
+.setup-board {
+	position: absolute;
+	right: 35%;
+	width: 30%;
+    height: 800%;
+}
+.win-board {
+    position: absolute;
+	right: 0%;
+	width: 30%;
+    height: 800%;
+}
+.new-board {
+	width: 100%;
+}
+
+.menu {
+	position: absolute;
+	width: 25%;
+	left: 30px;
+}
+
+.step-actions{
+    top: 150%;
+}
+.prev-next{
+    top: 300%;
+}
+.step {
+	width: 100%;
+    width: 30%;
+	top: 100px;
+}
+
