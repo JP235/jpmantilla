@@ -16,7 +16,7 @@ export const getGame = (gameCode) => (dispatch, getState) => {
 		return;
 	}
 	axios
-		.get(`/api/game/${gameCode}/`, tokenConfig(getState))
+		.get(`https://klotski-backend.herokuapp.com/api/game/${gameCode}/`, tokenConfig(getState))
 		.then((res) => {
 			dispatch(gameLoaded());
 			dispatch(startPlaying(res.data));
@@ -49,7 +49,7 @@ export const saveGame = (game, blocks, moves) => (dispatch, getState) => {
 
 	const body = JSON.stringify({ game: game, blocks: blocks, moves: moves });
 	axios
-		.put(`/api/game/${game.code}/`, body, tokenConfig(getState))
+		.put(`https://klotski-backend.herokuapp.com/api/game/${game.code}/`, body, tokenConfig(getState))
 		.then((res) => {
 			res.status === 201 &&
 				window.location.replace("/game/" + res.data.game.code);
@@ -73,7 +73,7 @@ export const createGame = (game, blocks) => (dispatch, getState) => {
 	const body = JSON.stringify({ game: game, blocks: blocks });
 	// console.log(game, blocks);
 	axios
-		.post("/api/game/create/", body, tokenConfig(getState))
+		.post("https://klotski-backend.herokuapp.com/api/game/create/", body, tokenConfig(getState))
 		.then((res) => {
 			// console.log(res.data);
 			dispatch(

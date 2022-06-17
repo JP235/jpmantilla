@@ -17,7 +17,7 @@ export const loadUser = () => (dispatch, getState) => {
 	// User Loading
 	dispatch(loadingUser());
 	axios
-		.get("/api/auth/user", tokenConfig(getState))
+		.get("https://klotski-backend.herokuapp.com/api/auth/user", tokenConfig(getState))
 		.then((res) => {
 			dispatch(userLoaded(res.data));
 		})
@@ -47,7 +47,7 @@ export const login = (username, password) => (dispatch) => {
 	// Request Body
 	const body = JSON.stringify(user);
 	axios
-		.post("/api/auth/login/", body, config)
+		.post("https://klotski-backend.herokuapp.com/api/auth/login/", body, config)
 		.then((res) => {
 			dispatch(loginSuccess(res.data));
 		})
@@ -92,7 +92,7 @@ export const register =
 // LOGOUT USER
 export const logout = () => (dispatch, getState) => {
 	axios
-		.post("/api/auth/logout/", null, tokenConfig(getState))
+		.post("https://klotski-backend.herokuapp.com/api/auth/logout/", null, tokenConfig(getState))
 		.then((res) => {
 			dispatch(logoutSuccess());
 		})

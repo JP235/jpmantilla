@@ -1,11 +1,6 @@
 *.prof
 migrations
 uploads
-*.png
-*.jpg
-*.jpeg
-*.gif
-*.svg
 
 node_modules
 /.pnp

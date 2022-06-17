@@ -1,7 +1,6 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "proxy": "https://klotski-backend.herokuapp.com/ ",
   "private": true,
   "engines": {
     "node": "16.14.0", 
