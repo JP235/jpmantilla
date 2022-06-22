@@ -7,7 +7,7 @@ import { returnErrors } from "../../common/utils/errorsSlice";
 
 import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
-const base_req_url = LOCAL_URL;
+const base_req_url = SERVER_URL;
 
 export const getBoards = () => (dispatch, getState) => {
 	dispatch(loadingBoards());

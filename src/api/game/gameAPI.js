@@ -9,7 +9,7 @@ import { loadingGame, gameLoaded, savingGame, gameSaved } from "./gameAPISlice";
 import { startPlaying } from "../../pages/PlayGame/playGameSlice";
 import { CLASSICDATA } from "./classicData";
 
-const base_req_url = LOCAL_URL;
+const base_req_url = SERVER_URL;
 
 export const getGame = (gameCode) => (dispatch, getState) => {
 	dispatch(loadingGame());
