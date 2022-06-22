@@ -1,9 +1,5 @@
 import React from "react";
-import {
-	BrowserRouter as Router,
-	Routes,
-	Route,
-} from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
 import Protected from "../common/utils/Protected";
 
@@ -17,60 +13,23 @@ import UserDashboard from "../pages/UserDashboard/UserDashboard";
 import CustomGame from "../pages/CustomGame/CustomGame";
 
 export default function AppRoutes() {
-
-
 	return (
 		<Router>
 			<Routes>
 				<Route path="/" element={<HomePage />} exact />
 				<Route path="/login" element={<Login />} exact />
 				<Route path="/register" element={<Register />} exact />
-				<Route
-					path="/custom/"
-					element={
-						<Protected>
-							<CustomGame />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/listgames/"
-					element={
-						<Protected>
-							<ListGames />
-						</Protected>
-					}
-				/>
-				<Route
-					path="/logout"
-					element={
-						<Protected>
-							<Logout />
-						</Protected>
-					}
-					exact
-				/>
-				<Route
-					path="/game/:gameCode"
-					element={
-						<Protected>
-							<PlayGame />
-						</Protected>
-					}
-				/>
+				<Route element={<Protected />}>
+					<Route path="/custom/" element={<CustomGame />} />
+					<Route path="/listgames/" element={<ListGames />} />
+					<Route path="/logout" element={<Logout />} exact />
+					<Route path="/game/:gameCode" element={<PlayGame />} />
+					<Route path="/dashboard/*" element={<UserDashboard />} />
+				</Route>
 				<Route
 					path="/game/classic"
-					element={
-							<PlayGame gameCode={"classic"} />
-					} exact
-				/>
-				<Route
-					path="/dashboard/*"
-					element={
-						<Protected>
-							<UserDashboard />
-						</Protected>
-					}
+					element={<PlayGame gameCode={"classic"} />}
+					exact
 				/>
 				{/* 
 					<Route path="/random/*" element={<RandomGame />} />

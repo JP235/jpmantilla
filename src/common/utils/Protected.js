@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Navigate, Outlet } from "react-router-dom";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import {
@@ -11,7 +11,6 @@ import { useEffect } from "react";
 
 const Protected = ({ children }) => {
 	const dispatch = useDispatch();
-	const navigate = useNavigate();
 	const isAuthenticated = useSelector(selectIsAuthenticated);
 	const isLoading = useSelector(selectIsLoading);
 
@@ -19,17 +18,11 @@ const Protected = ({ children }) => {
 		dispatch(loadUser());
 	}, [dispatch]);
 
-	useEffect(() => {
-		if (!isAuthenticated && !isLoading) {
-			navigate("/login");
-		}
-	}, [navigate, isAuthenticated, isLoading]);
-
-	if (isAuthenticated) {
-		return children;
-	} else if (!isLoading) {
-		console.log("Not authenticated");
-	}
+  return (
+    isLoading 
+      ? <div>Loading...</div> 
+      : isAuthenticated ? <Outlet /> : <Navigate to="/login" />
+  )
 };
 
 export default Protected;
