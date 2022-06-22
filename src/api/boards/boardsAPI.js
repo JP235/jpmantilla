@@ -1,18 +1,16 @@
 import axios from "axios";
 
 import { tokenConfig } from "../tokenConfig";
-import { SERVER_URL, LOCAL_URL } from "../urlconfig";
+import { BASE_REQ_URL } from "../urlconfig";
 import { createMessage } from "../../common/utils/messagesSlice";
 import { returnErrors } from "../../common/utils/errorsSlice";
 
 import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
-const base_req_url = SERVER_URL;
-
 export const getBoards = () => (dispatch, getState) => {
 	dispatch(loadingBoards());
 	axios
-		.get(base_req_url+"api/boards/", tokenConfig(getState))
+		.get(BASE_REQ_URL+"api/boards/", tokenConfig(getState))
 		.then((res) => {
 			dispatch(boardsLoaded(res.data));
 			dispatch(
@@ -37,7 +35,7 @@ export const getBoards = () => (dispatch, getState) => {
 export const deleteBoard = (gameCode) => (dispatch, getState) => {
 	axios
 		.delete(
-			base_req_url+`api/game/${gameCode}/`,
+			BASE_REQ_URL+`api/game/${gameCode}/`,
 			tokenConfig(getState)
 		)
 		.then((res) => {
