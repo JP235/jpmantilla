@@ -4,9 +4,12 @@ import { tokenConfig } from "../tokenConfig";
 import { createMessage } from "../../common/utils/messagesSlice";
 import { returnErrors } from "../../common/utils/errorsSlice";
 
+import { SERVER_URL, LOCAL_URL } from "../urlconfig";
 import { loadingGame, gameLoaded, savingGame, gameSaved } from "./gameAPISlice";
 import { startPlaying } from "../../pages/PlayGame/playGameSlice";
 import { CLASSICDATA } from "./classicData";
+
+const base_req_url = LOCAL_URL;
 
 export const getGame = (gameCode) => (dispatch, getState) => {
 	dispatch(loadingGame());
@@ -16,7 +19,7 @@ export const getGame = (gameCode) => (dispatch, getState) => {
 		return;
 	}
 	axios
-		.get(`https://klotski-api.herokuapp.com/api/game/${gameCode}/`, tokenConfig(getState))
+		.get(base_req_url+"api/game/"+gameCode, tokenConfig(getState))
 		.then((res) => {
 			dispatch(gameLoaded());
 			dispatch(startPlaying(res.data));
@@ -49,7 +52,7 @@ export const saveGame = (game, blocks, moves) => (dispatch, getState) => {
 
 	const body = JSON.stringify({ game: game, blocks: blocks, moves: moves });
 	axios
-		.put(`https://klotski-api.herokuapp.com/api/game/${game.code}/`, body, tokenConfig(getState))
+		.put(base_req_url+"api/game/"+game.code, body, tokenConfig(getState))
 		.then((res) => {
 			res.status === 201 &&
 				window.location.replace("/game/" + res.data.game.code);
@@ -73,7 +76,7 @@ export const createGame = (game, blocks) => (dispatch, getState) => {
 	const body = JSON.stringify({ game: game, blocks: blocks });
 	// console.log(game, blocks);
 	axios
-		.post("https://klotski-api.herokuapp.com/api/game/create/", body, tokenConfig(getState))
+		.post(base_req_url+"api/game/create/", body, tokenConfig(getState))
 		.then((res) => {
 			// console.log(res.data);
 			dispatch(

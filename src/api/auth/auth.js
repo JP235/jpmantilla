@@ -1,4 +1,6 @@
 import axios from "axios";
+
+import { SERVER_URL, LOCAL_URL } from "../urlconfig";
 import { tokenConfig } from "../tokenConfig";
 import { returnErrors } from "../../common/utils/errorsSlice";
 import {
@@ -12,12 +14,14 @@ import {
 	registerFail,
 } from "./authAPISlice";
 
+const base_req_url = SERVER_URL;
+
 // CHECK TOKEN & LOAD USER
 export const loadUser = () => (dispatch, getState) => {
 	// User Loading
 	dispatch(loadingUser());
 	axios
-		.get("https://klotski-api.herokuapp.com/api/auth/user", tokenConfig(getState))
+		.get(base_req_url+"api/auth/user", tokenConfig(getState))
 		.then((res) => {
 			dispatch(userLoaded(res.data));
 		})
@@ -48,7 +52,7 @@ export const login = (username, password) => (dispatch) => {
 	// Request Body
 	const body = JSON.stringify(user);
 	axios
-		.post("https://klotski-api.herokuapp.com/api/auth/login/", body, config)
+		.post(base_req_url+"api/auth/login/", body, config)
 		.then((res) => {
 			dispatch(loginSuccess(res.data));
 		})
@@ -79,7 +83,7 @@ export const register =
 		// Request Body
 		const body = JSON.stringify({ email, password });
 		axios
-			.post("https://klotski-api.herokuapp.com/api/auth/register", body, config)
+			.post(base_req_url+"api/auth/register", body, config)
 			.then((res) => {
 				dispatch(registerSuccess(res.data));
 			})
@@ -92,7 +96,7 @@ export const register =
 // LOGOUT USER
 export const logout = () => (dispatch, getState) => {
 	axios
-		.post("https://klotski-api.herokuapp.com/api/auth/logout/", null, tokenConfig(getState))
+		.post(base_req_url+"api/auth/logout/", null, tokenConfig(getState))
 		.then((res) => {
 			dispatch(logoutSuccess());
 		})
