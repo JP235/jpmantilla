@@ -1,5 +1,7 @@
 import React from "react";
 
+import "./playGame.css";
+
 import { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
@@ -132,10 +134,8 @@ function PlayGame(props) {
 	}, [handleMouseDown, handleMouseUp]);
 
 	return (
-		<>
-			<div>downX {downX}</div>
-			<div>downY {downY}</div>
-
+    <>
+    <div className="BoardsContainer">
 			<BoardCanvas
 				rows={rows}
 				cols={cols}
@@ -144,6 +144,20 @@ function PlayGame(props) {
 				id="playBoard"
 			/>
 
+			<BoardCanvas
+				rows={rows}
+				cols={cols}
+				blocks={[
+					{
+						...blocks.find((bl) => bl.name === "GG"),
+						x: game.win_block_x,
+						y: game.win_block_y,
+						color: "#c0ca33",
+					},
+				]}
+				id="winBoard"
+			/>
+      </div>
 			<button
 				className="btn btn-primary"
 				onClick={() => {
@@ -174,19 +188,6 @@ function PlayGame(props) {
 			>
 				Redo
 			</button>
-			<BoardCanvas
-				rows={rows}
-				cols={cols}
-				blocks={[
-					{
-						...blocks.find((bl) => bl.name === "GG"),
-						x: game.win_block_x,
-						y: game.win_block_y,
-						color: "#c0ca33",
-					},
-				]}
-				id="winBoard"
-			/>
 		</>
 	);
 }
