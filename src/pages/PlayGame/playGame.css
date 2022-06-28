@@ -1,38 +1,25 @@
-.BoardsContainer {
+.boards-container {
     position: relative;
+    width: 100%;
     border: 1px solid black;
     min-height: 300px;
     height: 100%;
-    margin-left: 0px;
 } 
 #playBoard {
 	position: absolute;
+    top: 0;
 	left: 25%;
-	width: 30%;
+	max-width: 30%;
     max-height: 100%;
+    min-width: 10%; ;
+    min-height: 50%;
 }
 #winBoard {
     position: absolute;
 	top: 10%;
     left: 60%;
-    width: 15%; ;
-    max-height: 100%;
-}
-
-.menu {
-	position: absolute;
-	width: 25%;
-	left: 30px;
-}
-
-.step-actions{
-    top: 150%;
-}
-.prev-next{
-    top: 300%;
-}
-.step {
-	width: 100%;
-    width: 30%;
-	top: 100px;
+    max-width: 15%; ;
+    max-height: 50%;
+    min-width: 5%; ;
+    min-height: 25%;
 }

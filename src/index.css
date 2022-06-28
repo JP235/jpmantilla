@@ -13,11 +13,11 @@ body {
     padding-top: 0px;
 }
 .Footer {
-    bottom: 10px;
+    bottom: 0px;
     height: 50px;
     position: relative;
-    /* text-align: center; */
-    /* align-self: flex-end; */
+    text-align: center;
+    align-self: flex-end; 
 }
 
 .Content {
