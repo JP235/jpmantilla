@@ -100,30 +100,31 @@ function CustomGame() {
 	};
 
 	const makeWinBoard = (winName) => {
-		let shift = [];
-		let noShift = [];
-		let wb = {};
+		if (!winName) return;
+		let shiftedNames = [];
+		let notShiftedNames = [];
+		let winBlock = {};
 
 		for (let b of blocks) {
 			if (b.name === winName) {
-				wb = { ...b, name: "GG", color: "#c0ca33" };
-				dispatch(placeWinBlock(wb));
-				shift.push(wb);
-				noShift.push(wb);
+				winBlock = { ...b, name: "GG", color: "#c0ca33" };
+				dispatch(placeWinBlock(winBlock));
+				shiftedNames.push(winBlock);
+				notShiftedNames.push(winBlock);
 			} else if (Number(b.name) > Number(winName)) {
-				shift.push({
+				shiftedNames.push({
 					...b,
 					name: (Number(b.name) - 1).toString().padStart(2, "0"),
 				});
-				noShift.push(b);
+				notShiftedNames.push(b);
 			} else {
-				shift.push(b);
-				noShift.push(b);
+				shiftedNames.push(b);
+				notShiftedNames.push(b);
 			}
 		}
-		setNameShift(shift);
-		setNoNameShift(noShift);
-		setShowBlocks(noShift);
+		setNameShift(shiftedNames);
+		setNoNameShift(notShiftedNames);
+		setShowBlocks(notShiftedNames);
 	};
 
 	useEffect(() => {
@@ -187,11 +188,11 @@ function CustomGame() {
 			const canvasPos = getMousePos(event.target, event);
 			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
 
-			if (event.target.parentElement.className.includes("setup-board")) {
+			if (event.target.className.includes("setup-board")) {
 				step === 1 && startDrawingBlock(x, y);
 				step === 2 && setMarkedBlock(strXY(x, y));
 			} else if (
-				event.target.parentElement.className.includes("win-board") &&
+				event.target.className.includes("win-board") &&
 				step === 2
 			) {
 				setMovingWinBlock(true);
@@ -241,13 +242,14 @@ function CustomGame() {
 				if (markedBlock !== strXY(x, y)) {
 					return;
 				}
-				step === 1 && dispatch(removeBlock(coordsToBlocks[markedBlock]));
+				step === 1 &&
+					dispatch(removeBlock(coordsToBlocks[markedBlock]));
 				step === 2 && makeWinBoard(coordsToBlocks[markedBlock]);
 			}
 
 			setMarkedBlock(null);
 		},
-    // eslint-disable-next-line 
+		// eslint-disable-next-line
 		[drawingBlock, dispatch, newBlock, markedBlock, coordsToBlocks, step]
 	);
 
@@ -300,7 +302,6 @@ function CustomGame() {
 				id="Win-Block"
 				onChange={(e) => makeWinBoard(e.target.value)}
 			>
-				<option key="win-block">Pick Win block</option>
 				{blocks.map((bl) => (
 					<option key={bl.name}>{bl.name}</option>
 				))}
@@ -329,34 +330,27 @@ function CustomGame() {
 	);
 
 	return (
-		<div className="new-game-container">
-			<p> New Game Page </p>
-			<p> Step: {step}</p>
-			<p> Marked: {markedBlock}</p>
-			<div className="setup-board">
-				<label htmlFor="setup-board">setup-board</label>
+		<div className="boards-container">
+			<p> Custom Game Page </p>
+			<BoardCanvas
+				rows={rows}
+				cols={cols}
+				blocks={step === 0 ? [blockSample] : showBlocks}
+				onMouseMove={trackMouseOnBoard}
+				className="setup-board"
+				id="playBoard"
+			/>
+
+			{/* {(step === 2) | (step === 3) ? ( */}
 				<BoardCanvas
 					rows={rows}
 					cols={cols}
-					blocks={step === 0 ? [blockSample] : showBlocks}
+					blocks={[winBlock]}
 					onMouseMove={trackMouseOnBoard}
-					className="new-board"
-					id="playBoard"
+					className="win-board"
+					id="winBoard"
 				/>
-			</div>
-			{(step === 2) | (step === 3) ? (
-				<div className="win-board">
-					<label>Select win-block position</label>
-					<BoardCanvas
-						rows={rows}
-						cols={cols}
-						blocks={[winBlock]}
-						onMouseMove={trackMouseOnBoard}
-						className="new-board"
-						id="winBoard"
-					/>
-				</div>
-			) : null}
+			{/* ) : null} */}
 			<div className="menu step-actions">
 				{step === 0 && menuStepZero}
 				{step === 1 && menuStepOne}

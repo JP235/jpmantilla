@@ -11,6 +11,7 @@ import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 
 import {
 	isLegalMove,
+  isGameWon,
 	undoMove,
 	redoMove,
 	selectGame,
@@ -96,6 +97,7 @@ function PlayGame(props) {
 				) {
 					setDownX(x);
 					setDownY(y);
+          dispatch(isGameWon())
 				}
 			}
 		}
@@ -135,7 +137,7 @@ function PlayGame(props) {
 
 	return (
     <>
-    <div className="BoardsContainer">
+    <div className="boards-container">
 			<BoardCanvas
 				rows={rows}
 				cols={cols}

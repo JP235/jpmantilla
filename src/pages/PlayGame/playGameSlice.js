@@ -39,8 +39,9 @@ export const playGameSlice = createSlice({
 			state.win_block_y = action.payload.game.win_block_y;
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
 		},
-		markSolved: (state) => {
+		markSolved: (state, action) => {
 			state.solved = true;
+			state.blocks = action.payload;
 		},
 		undoMove: (state) => {
 			const move = state.pastMoves.pop();
@@ -79,15 +80,34 @@ export const playGameSlice = createSlice({
 		},
 		moveBlock: (state, action) => {
 			let { targetBlock, deltX, deltY } = action.payload;
-
-			state.pastMoves.push({
-				targetBlock,
-				deltX,
-				deltY,
-				game: state.game.id,
-			});
-			state.futureMoves = [];
-			state.number_of_moves += 1;
+			let lastMove = state.pastMoves[state.pastMoves.length - 1];
+			let nextMove = state.futureMoves[state.futureMoves.length - 1];
+			if (
+				lastMove &&
+				lastMove.targetBlock === targetBlock &&
+				lastMove.deltX === -deltX &&
+				lastMove.deltY === -deltY
+			) {
+				state.futureMoves.push(state.pastMoves.pop());
+				state.number_of_moves -= 1;
+			} else if (
+				nextMove &&
+				nextMove.targetBlock === targetBlock &&
+				nextMove.deltX === -deltX &&
+				nextMove.deltY === -deltY
+			) {
+				state.pastMoves.push(state.futureMoves.pop());
+				state.number_of_moves += 1;
+			} else {
+				state.pastMoves.push({
+					targetBlock,
+					deltX,
+					deltY,
+					game: state.game.id,
+				});
+				state.futureMoves = [];
+				state.number_of_moves += 1;
+			}
 			state.blocks = changeBlockPos(
 				targetBlock,
 				deltX,
@@ -99,7 +119,7 @@ export const playGameSlice = createSlice({
 	},
 });
 
-export const { startPlaying, moveBlock, undoMove, redoMove } =
+export const { startPlaying, markSolved, moveBlock, undoMove, redoMove } =
 	playGameSlice.actions;
 
 export const selectGame = (state) => state.playGame.game;
@@ -163,16 +183,17 @@ export const isLegalMove =
 		}
 	};
 
-// function checkWinCond(blocks, win_block_x, win_block_y) {
-// 	const gg = blocks.filter((b) => b.name === "GG");
-// 	if (gg.x === win_block_x && gg.y === win_block_y) {
-// 		console.log("YOU WIN!");
-// 		let bls = [];
-// 		for (let b of blocks) {
-// 			bls.push({ ...b, color: "light green" });
-// 		}
-// 		return [true, bls];
-// 	} else {
-// 		return [false, blocks];
-// 	}
-// }
+export const isGameWon = () => (dispatch, getState) => {
+	const blocks = getState().playGame.blocks;
+	const win_block_x = getState().playGame.win_block_x;
+	const win_block_y = getState().playGame.win_block_y;
+	const gg = blocks.find((b) => b.name === "GG");
+	if (gg.x === win_block_x && gg.y === win_block_y) {
+		console.log("YOU WIN!");
+		let blocksWon = [];
+		for (let b of blocks) {
+			blocksWon.push({ ...b, color: "green" });
+		}
+		dispatch(markSolved(blocksWon));
+	}
+};
