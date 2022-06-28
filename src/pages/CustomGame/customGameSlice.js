@@ -33,6 +33,7 @@ export const customGameSlice = createSlice({
 			switch (state.step) {
 				case 0:
 					state.blocks = [];
+          state.winBlock = null;
 					state.blockName = 1;
 					state.takenCoords = [];
 					break;
