@@ -11,7 +11,7 @@ import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 
 import {
 	isLegalMove,
-  isGameWon,
+	isGameWon,
 	undoMove,
 	redoMove,
 	selectGame,
@@ -97,7 +97,7 @@ function PlayGame(props) {
 				) {
 					setDownX(x);
 					setDownY(y);
-          dispatch(isGameWon())
+					dispatch(isGameWon());
 				}
 			}
 		}
@@ -136,60 +136,71 @@ function PlayGame(props) {
 	}, [handleMouseDown, handleMouseUp]);
 
 	return (
-    <>
-    <div className="boards-container">
-			<BoardCanvas
-				rows={rows}
-				cols={cols}
-				blocks={blocks}
-				onMouseMove={trackMouseOnBoardRef.current}
-				id="playBoard"
-			/>
+		<>
+			<div className="boards-container">
+				<BoardCanvas
+					rows={rows}
+					cols={cols}
+					blocks={blocks}
+					onMouseMove={trackMouseOnBoardRef.current}
+					id="playBoard"
+				/>
 
-			<BoardCanvas
-				rows={rows}
-				cols={cols}
-				blocks={[
-					{
-						...blocks.find((bl) => bl.name === "GG"),
-						x: game.win_block_x,
-						y: game.win_block_y,
-						color: "#c0ca33",
-					},
-				]}
-				id="winBoard"
-			/>
-      </div>
-			<button
-				className="btn btn-primary"
-				onClick={() => {
-					const gameToSave = {
-						...game,
-						number_of_moves: moves,
-						img_curr: getCanvasImageURI("playBoard"),
-						img_win: getCanvasImageURI("winBoard"),
-					};
-					gameCode.gameCode !== "classic"
-						? dispatch(saveGame(gameToSave, blocks, pastMoves))
-						: dispatch(createGame(gameToSave, blocks));
-				}}
-			>
-				Save Game
-			</button>
-			<button
-				className="btn btn-primary"
-				disabled={!pastMoves || pastMoves.length === 0 ? true : false}
-				onClick={() => dispatch(undoMove())}
-			>
-				Undo
-			</button>
-			<button
-				className="btn btn-primary"
-				disabled={futureMoves.length > 0 ? false : true}
-				onClick={() => dispatch(redoMove())}
-			>
-				Redo
-			</button>
+				<BoardCanvas
+					rows={rows}
+					cols={cols}
+					blocks={[
+						{
+							...blocks.find((bl) => bl.name === "GG"),
+							x: game.win_block_x,
+							y: game.win_block_y,
+							color: "#c0ca33",
+						},
+					]}
+					id="winBoard"
+				/>
+
+				<div className="game-buttons-container">
+					<button
+						className="btn-menu undo"
+            type='button'
+						disabled={
+							!pastMoves || pastMoves.length === 0 ? true : false
+						}
+						onClick={() => dispatch(undoMove())}
+					>
+						Undo
+					</button>{"  "}
+					<button
+						className="btn-menu redo"
+            type='button'
+            disabled={futureMoves.length > 0 ? false : true}
+						onClick={() => dispatch(redoMove())}
+					>
+						Redo
+					</button>
+					<button
+						className="btn-menu save"
+            type='button'
+						onClick={() => {
+							const gameToSave = {
+								...game,
+								number_of_moves: moves,
+								img_curr: getCanvasImageURI("playBoard"),
+								img_win: getCanvasImageURI("winBoard"),
+							};
+							gameCode.gameCode !== "classic"
+								? dispatch(
+										saveGame(gameToSave, blocks, pastMoves)
+								  )
+								: dispatch(createGame(gameToSave, blocks));
+						}}
+					>
+						Save Game
+					</button>
+          
+				</div>
+			</div>
 		</>
 	);
 }

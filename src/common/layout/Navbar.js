@@ -27,12 +27,12 @@ const Navbar = () => {
 					<Button color="primary" href="/listgames" >
 						List Games
 					</Button>
-					<Button color="secondary" href="/random" >
-						Random Game
-					</Button>
-          <Button color="primary" href="/game/classic" >
+          <Button color="secondary" href="/game/classic" >
             Classic Game
           </Button>
+					{/* <Button color="primary" href="/random" >
+						Random Game
+					</Button> */}
 				</ButtonGroup>
 			</Grid>
 			</Grid>

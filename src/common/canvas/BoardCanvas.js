@@ -10,7 +10,7 @@ function canvasBlockParams(block) {
 	const y = BORDERMARGIN + block.x * (BLOCKSIDE + BLOCKMARGIN);
 	const h = BLOCKSIDE * block.l + BLOCKMARGIN * (block.l - 1);
 	const l = BLOCKSIDE * block.h + BLOCKMARGIN * (block.h - 1);
-	const color = block.color ? block.color : "white";
+	const color = block.color ? block.color : name === "GG" ? "#C0C850" : "white";
 
 	return { name, x, y, h, l, color };
 }
