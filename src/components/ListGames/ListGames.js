@@ -5,13 +5,14 @@ import { selectBoards } from "../../api/boards/boardsAPISlice";
 import { getBoards } from "../../api/boards/boardsAPI";
 import { BoardPics } from "../../common/canvas/BoardPics";
 
-function ListGames() {
+function ListGames(props) {
+	const dispatch = useDispatch();
 	const boards = useSelector(selectBoards);
-  const dispatch = useDispatch();
 
 	useEffect(() => {
-		dispatch(getBoards());
-	}, [dispatch]);
+		dispatch(getBoards(props.open));
+	
+	}, []);
 
 	return (
 		<ul>

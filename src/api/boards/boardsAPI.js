@@ -7,10 +7,11 @@ import { returnErrors } from "../../common/utils/errorsSlice";
 
 import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
-export const getBoards = () => (dispatch, getState) => {
+export const getBoards = (open=false) => (dispatch, getState) => {
 	dispatch(loadingBoards());
+  let boardsURL = open ?  BASE_REQ_URL+"api/openboards/" : BASE_REQ_URL+"api/boards/"
 	axios
-		.get(BASE_REQ_URL+"api/boards/", tokenConfig(getState))
+		.get(boardsURL, tokenConfig(getState))
 		.then((res) => {
 			dispatch(boardsLoaded(res.data));
 			dispatch(
@@ -31,6 +32,7 @@ export const getBoards = () => (dispatch, getState) => {
 			);
 		});
 };
+
 
 export const deleteBoard = (gameCode) => (dispatch, getState) => {
 	axios
