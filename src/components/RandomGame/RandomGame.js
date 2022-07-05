@@ -4,7 +4,7 @@ import {  useNavigate} from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsLoading, selectBoards } from "../../api/boards/boardsAPISlice";
 import { getBoards } from "../../api/boards/boardsAPI";
-i;
+
 function RandomGame(props) {
 	const dispatch = useDispatch();
 	const loading = useSelector(selectIsLoading);
@@ -12,7 +12,8 @@ function RandomGame(props) {
   const navigate = useNavigate();
 
 	useEffect(() => {
-		dispatch(getBoards(open = true));
+		dispatch(getBoards(true));
+    	// eslint-disable-next-line
 	}, []);
 
   if (!loading) {

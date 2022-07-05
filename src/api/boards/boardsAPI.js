@@ -7,9 +7,9 @@ import { returnErrors } from "../../common/utils/errorsSlice";
 
 import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
-export const getBoards = (open=false) => (dispatch, getState) => {
+export const getBoards = (openboards=false) => (dispatch, getState) => {
 	dispatch(loadingBoards());
-  let boardsURL = open ?  BASE_REQ_URL+"api/openboards/" : BASE_REQ_URL+"api/boards/"
+  let boardsURL = openboards ?  BASE_REQ_URL+"api/openboards/" : BASE_REQ_URL+"api/boards/"
 	axios
 		.get(boardsURL, tokenConfig(getState))
 		.then((res) => {

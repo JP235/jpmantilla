@@ -11,7 +11,7 @@ function ListGames(props) {
 
 	useEffect(() => {
 		dispatch(getBoards(props.open));
-	
+   		// eslint-disable-next-line
 	}, []);
 
 	return (

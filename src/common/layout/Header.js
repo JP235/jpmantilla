@@ -3,7 +3,7 @@ import "./Header.css"
 import React from "react";
 
 import Navbar from "./Navbar";
-import LoginStatus from "../../pages/auth/LoginStatus";
+import LoginStatus from "../../components/auth/LoginStatus";
 
 const Header = () => {
 	return (

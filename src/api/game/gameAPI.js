@@ -6,7 +6,7 @@ import { returnErrors } from "../../common/utils/errorsSlice";
 
 import { BASE_REQ_URL } from "../urlconfig";
 import { loadingGame, gameLoaded, savingGame, gameSaved } from "./gameAPISlice";
-import { startPlaying } from "../../pages/PlayGame/playGameSlice";
+import { startPlaying } from "../../components/PlayGame/playGameSlice";
 import { CLASSICDATA } from "./classicData";
 
 export const getGame = (gameCode) => (dispatch, getState) => {
