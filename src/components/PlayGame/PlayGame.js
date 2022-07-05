@@ -128,7 +128,12 @@ function PlayGame(props) {
 
 	useEffect(() => {
 		document.onmousedown = handleMouseDownRef.current;
+		document.touchstart = handleMouseDownRef.current;
+
 		document.onmouseup = handleMouseUpRef.current;
+		document.touchend = handleMouseUpRef.current;
+
+		document.touchmove = trackMouseOnBoardRef.current;
 		return () => {
 			document.onmousedown = null;
 			document.onmouseup = null;

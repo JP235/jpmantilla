@@ -255,12 +255,21 @@ function CustomGame() {
 
 	useEffect(() => {
 		document.addEventListener("mousedown", handleMouseDown);
+		document.addEventListener("touchstart", handleMouseDown, false);
+    
 		document.addEventListener("mouseup", handleMouseUp);
+		document.addEventListener("touchend", handleMouseUp, false);
+
+    document.addEventListener("touchmove", trackMouseOnBoard, false);
 		return () => {
 			document.removeEventListener("mousedown", handleMouseDown);
+			document.removeEventListener("touchstart", handleMouseDown, false);
 			document.removeEventListener("mouseup", handleMouseUp);
+			document.removeEventListener("touchend", handleMouseUp, false);
+      
+			document.removeEventListener("touchmove", trackMouseOnBoard, false);
 		};
-	}, [handleMouseDown, handleMouseUp]);
+	}, [handleMouseDown,trackMouseOnBoard, handleMouseUp]);
 
 	const menuStepZero = (
 		<div className="step zero">
@@ -342,14 +351,14 @@ function CustomGame() {
 			/>
 
 			{/* {(step === 2) | (step === 3) ? ( */}
-				<BoardCanvas
-					rows={rows}
-					cols={cols}
-					blocks={[winBlock]}
-					onMouseMove={trackMouseOnBoard}
-					className="win-board"
-					id="winBoard"
-				/>
+			<BoardCanvas
+				rows={rows}
+				cols={cols}
+				blocks={[winBlock]}
+				onMouseMove={trackMouseOnBoard}
+				className="win-board"
+				id="winBoard"
+			/>
 			{/* ) : null} */}
 			<div className="menu step-actions">
 				{step === 0 && menuStepZero}
