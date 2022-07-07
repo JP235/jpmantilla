@@ -13,16 +13,9 @@ export const boardsSlice = createSlice({
 			state.isLoading = true;
 		},
 		boardsLoaded: (state, action) => {
-      // let bs = 
-      // for (let b of bs){
-      //   b.key = b.id
-      // }
 			state.boards = action.payload;
 			state.isLoading = false;
 		},
-		// boardSelected: (state, action) => {
-		// 	state.activeBoard = action.payload;
-		// },
 		deletedGame: (state, action) => {
 			state.boards = state.boards.filter(
 				(board) => board.code !== action.payload

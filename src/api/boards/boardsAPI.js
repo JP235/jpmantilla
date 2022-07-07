@@ -4,12 +4,22 @@ import { tokenConfig } from "../tokenConfig";
 import { BASE_REQ_URL } from "../urlconfig";
 import { createMessage } from "../../common/utils/messagesSlice";
 import { returnErrors } from "../../common/utils/errorsSlice";
-
+import { OPENBOARDSLIST } from "../game/openGamesData";
 import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 
 export const getBoards = (openboards=false) => (dispatch, getState) => {
 	dispatch(loadingBoards());
-  let boardsURL = openboards ?  BASE_REQ_URL+"api/openboards/" : BASE_REQ_URL+"api/boards/"
+  if (openboards){
+    dispatch(boardsLoaded(OPENBOARDSLIST.map(e => e.game)))
+    dispatch(
+      createMessage({
+        type: "Loaded Open Boards",
+        time: Date().toString(),
+      })
+    );
+    return
+  }
+  let boardsURL = BASE_REQ_URL+"api/boards/"
 	axios
 		.get(boardsURL, tokenConfig(getState))
 		.then((res) => {

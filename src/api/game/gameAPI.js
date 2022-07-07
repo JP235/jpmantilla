@@ -7,17 +7,18 @@ import { returnErrors } from "../../common/utils/errorsSlice";
 import { BASE_REQ_URL } from "../urlconfig";
 import { loadingGame, gameLoaded, savingGame, gameSaved } from "./gameAPISlice";
 import { startPlaying } from "../../components/PlayGame/playGameSlice";
-import { CLASSICDATA } from "./classicData";
+import { OPENBOARDS, OPENCODES } from "./openGamesData";
 
 export const getGame = (gameCode) => (dispatch, getState) => {
 	dispatch(loadingGame());
-	if (gameCode === "classic") {
+
+  if (OPENCODES.includes(gameCode)) {
 		dispatch(gameLoaded());
-		dispatch(startPlaying(CLASSICDATA));
+		dispatch(startPlaying(OPENBOARDS[gameCode]));
 		return;
 	}
 	axios
-		.get(BASE_REQ_URL+"api/game/"+gameCode, tokenConfig(getState))
+		.get(BASE_REQ_URL + "api/game/" + gameCode, tokenConfig(getState))
 		.then((res) => {
 			dispatch(gameLoaded());
 			dispatch(startPlaying(res.data));
@@ -50,7 +51,11 @@ export const saveGame = (game, blocks, moves) => (dispatch, getState) => {
 
 	const body = JSON.stringify({ game: game, blocks: blocks, moves: moves });
 	axios
-		.put(BASE_REQ_URL+"api/game/"+game.code +"/", body, tokenConfig(getState))
+		.put(
+			BASE_REQ_URL + "api/game/" + game.code + "/",
+			body,
+			tokenConfig(getState)
+		)
 		.then((res) => {
 			res.status === 201 &&
 				window.location.replace("/game/" + res.data.game.code);
@@ -74,7 +79,7 @@ export const createGame = (game, blocks) => (dispatch, getState) => {
 	const body = JSON.stringify({ game: game, blocks: blocks });
 	// console.log(game, blocks);
 	axios
-		.post(BASE_REQ_URL+"api/game/create/", body, tokenConfig(getState))
+		.post(BASE_REQ_URL + "api/game/create/", body, tokenConfig(getState))
 		.then((res) => {
 			// console.log(res.data);
 			dispatch(

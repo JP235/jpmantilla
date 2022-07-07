@@ -1,6 +1,6 @@
-import React, { useEffect  } from "react";
+import React, { useEffect } from "react";
 
-import {  useNavigate} from "react-router-dom";
+import { Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import { selectIsLoading, selectBoards } from "../../api/boards/boardsAPISlice";
 import { getBoards } from "../../api/boards/boardsAPI";
@@ -8,20 +8,17 @@ import { getBoards } from "../../api/boards/boardsAPI";
 function RandomGame(props) {
 	const dispatch = useDispatch();
 	const loading = useSelector(selectIsLoading);
-  const boards = useSelector(selectBoards);
-  const navigate = useNavigate();
+	const boards = useSelector(selectBoards);
 
 	useEffect(() => {
 		dispatch(getBoards(true));
-    	// eslint-disable-next-line
-	}, []);
+	}, [dispatch]);
 
-  if (!loading) {
-    const board = boards[Math.floor(Math.random() * boards.length)];
-    navigate(`/game/${board.code}`);
-  }
-
-	return <> </>;
+	if (!loading) {
+		const board = boards[Math.floor(Math.random() * boards.length)];
+    return <Navigate to={`/game/${board.code}`}/>
+	}
+  return <></>
 }
 
 export default RandomGame;

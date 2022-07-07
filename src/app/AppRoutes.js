@@ -21,19 +21,14 @@ export default function AppRoutes() {
 				<Route path="/login" element={<Login />} exact />
 				<Route path="/register" element={<Register />} exact />
 				<Route path="/opengames/" element={<ListGames open={true} />} />
-				<Route path="/random/*" element={<RandomGame />} />
-				<Route
-					path="/game/classic"
-					element={<PlayGame gameCode={"classic"} />}
-					exact
-				/>
+				<Route path="/random/" element={<RandomGame />} />
 
 				<Route element={<Protected />}>
 					<Route path="/custom/" element={<CustomGame />} />
 					<Route path="/listgames/" element={<ListGames />} />
 					<Route path="/logout" element={<Logout />} exact />
 					<Route path="/game/:gameCode" element={<PlayGame />} />
-					<Route path="/dashboard/*" element={<UserDashboard />} />
+					<Route path="/dashboard/" element={<UserDashboard />} />
 				</Route>
 			</Routes>
 		</Router>

@@ -29,10 +29,11 @@ import BoardCanvas from "../../common/canvas/BoardCanvas";
 import { strXY } from "../../common/utils/TupOpps";
 import { getMousePosCanvas } from "../../common/canvas/getMousePosCanvas";
 import { posToCoord } from "../../common/canvas/posToCoord";
+import { OPENCODES } from "../../api/game/openGamesData";
 
 function PlayGame(props) {
 	const dispatch = useDispatch();
-	const gameCode = useParams();
+	const params = useParams();
 
 	const game = useSelector(selectGame);
 	const moves = useSelector(selectNumberOfMoves);
@@ -52,12 +53,8 @@ function PlayGame(props) {
 	const [downY, setDownY] = useState(null);
 
 	useEffect(() => {
-		if (props.gameCode) {
-			dispatch(getGame(props.gameCode));
-		} else {
-			dispatch(getGame(gameCode.gameCode));
-		}
-	}, [dispatch, props, gameCode.gameCode]);
+		dispatch(getGame(params.gameCode));
+	}, [dispatch, params.gameCode]);
 
 	const handleMouseDown = useCallback(
 		(event) => {
@@ -168,25 +165,26 @@ function PlayGame(props) {
 				<div className="game-buttons-container">
 					<button
 						className="btn-menu undo"
-            type='button'
+						type="button"
 						disabled={
 							!pastMoves || pastMoves.length === 0 ? true : false
 						}
 						onClick={() => dispatch(undoMove())}
 					>
 						Undo
-					</button>{"  "}
+					</button>
+					{"  "}
 					<button
 						className="btn-menu redo"
-            type='button'
-            disabled={futureMoves.length > 0 ? false : true}
+						type="button"
+						disabled={futureMoves.length > 0 ? false : true}
 						onClick={() => dispatch(redoMove())}
 					>
 						Redo
 					</button>
 					<button
 						className="btn-menu save"
-            type='button'
+						type="button"
 						onClick={() => {
 							const gameToSave = {
 								...game,
@@ -194,16 +192,15 @@ function PlayGame(props) {
 								img_curr: getCanvasImageURI("playBoard"),
 								img_win: getCanvasImageURI("winBoard"),
 							};
-							gameCode.gameCode !== "classic"
-								? dispatch(
+							OPENCODES.includes(params.gameCode)
+								? dispatch(createGame(gameToSave, blocks))
+								: dispatch(
 										saveGame(gameToSave, blocks, pastMoves)
-								  )
-								: dispatch(createGame(gameToSave, blocks));
+								  );
 						}}
 					>
 						Save Game
 					</button>
-          
 				</div>
 			</div>
 		</>
