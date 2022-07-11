@@ -3,6 +3,7 @@ import { Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 
 import { deleteBoard } from "../../api/boards/boardsAPI";
+import { OPENCODES } from "../../api/game/openGamesData";
 
 import {
 	BORDERMARGIN,
@@ -46,17 +47,17 @@ export const BoardPics = (props) => {
 				alt="board"
 				onClick={() => setClicked(true)}
 			/>
-			<button onClick={() => setConfirmingDelete(true)}>
+			{!OPENCODES.includes(board.code) && <button className="button delete" onClick={() => setConfirmingDelete(true)}>
 				{" "}
 				Delete Game{" "}
-			</button>
+			</button>}
 			{confirmingDelete && (
 				<div>
 					Are you sure you want to delete this game?{" "}
-					<button onClick={() => dispatch(deleteBoard(board.code))}>
+					<button className="button delete" onClick={() => dispatch(deleteBoard(board.code))}>
 						Yes
 					</button>
-					<button onClick={() => setConfirmingDelete(false)}>
+					<button className="button delete" onClick={() => setConfirmingDelete(false)}>
 						No
 					</button>
 				</div>
