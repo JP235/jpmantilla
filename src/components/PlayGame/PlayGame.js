@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import { createGame, getGame, saveGame } from "../../api/game/gameAPI";
+import { selectGameStatus } from "../../api/game/gameAPISlice";
 import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 
 import {
@@ -38,6 +39,7 @@ function PlayGame(props) {
 	const game = useSelector(selectGame);
 	const moves = useSelector(selectNumberOfMoves);
 	const solved = useSelector(selectSolved);
+	const status = useSelector(selectGameStatus);
 
 	const cols = useSelector(selectCols);
 	const rows = useSelector(selectRows);
@@ -52,16 +54,23 @@ function PlayGame(props) {
 	const [downX, setDownX] = useState(null);
 	const [downY, setDownY] = useState(null);
 
+	const canvas = useRef(null);
+
 	useEffect(() => {
 		dispatch(getGame(params.gameCode));
 	}, [dispatch, params.gameCode]);
 
 	const handleMouseDown = useCallback(
 		(event) => {
-			if (!event.target.className.includes("board")) return;
+			event.preventDefault();
+			// if (!event.target.className.includes("board")) return;
+			console.log("handleMouseDown");
 
 			const canvasPos = getMousePosCanvas(event.target, event);
+			console.log(canvasPos);
 			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+			console.log(x, y);
+
 			setActiveMovingBlock(true);
 			setDownX(x);
 			setDownY(y);
@@ -77,9 +86,12 @@ function PlayGame(props) {
 	);
 
 	const trackMouseOnBoard = (event) => {
+		event.preventDefault();
 		if (activeMovingBlock) {
+      console.log("trackMouseOnBoard");
 			const canvasPos = getMousePosCanvas(event.target, event);
 			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+			console.log(x, y);
 
 			const deltX = x - downX;
 			const deltY = y - downY;
@@ -101,10 +113,14 @@ function PlayGame(props) {
 	};
 
 	const handleMouseUp = useCallback((event) => {
+		event.preventDefault();
+
 		setActiveMovingBlock(false);
 		setTargetBlock(null);
 		setDownX(null);
 		setDownY(null);
+		console.log("handleMouseUp");
+		console.log("");
 	}, []);
 
 	const trackMouseOnBoardRef = useRef(trackMouseOnBoard);
@@ -124,18 +140,68 @@ function PlayGame(props) {
 	}, [solved]);
 
 	useEffect(() => {
-		document.onmousedown = handleMouseDownRef.current;
-		document.touchstart = handleMouseDownRef.current;
-
-		document.onmouseup = handleMouseUpRef.current;
-		document.touchend = handleMouseUpRef.current;
-
-		document.touchmove = trackMouseOnBoardRef.current;
-		return () => {
-			document.onmousedown = null;
-			document.onmouseup = null;
-		};
-	}, [handleMouseDown, handleMouseUp]);
+		if (status === "game loaded") {
+			canvas.current = document.getElementById("playBoard");
+			canvas.current.addEventListener(
+				"mousedown",
+				handleMouseDownRef.current
+			);
+			canvas.current.addEventListener(
+				"touchstart",
+				handleMouseDownRef.current
+			);
+			canvas.current.addEventListener(
+				"mousemove",
+				trackMouseOnBoardRef.current
+			);
+			canvas.current.addEventListener(
+				"touchmove",
+				trackMouseOnBoardRef.current
+			);
+			canvas.current.addEventListener(
+				"touchend",
+				handleMouseUpRef.current
+			);
+			canvas.current.addEventListener(
+				"mouseup",
+				handleMouseUpRef.current
+			);
+			canvas.current.addEventListener(
+				"mouseleave",
+				handleMouseUpRef.current
+			);
+			return () => {
+				canvas.current.removeEventListener(
+					"mousedown",
+					handleMouseDownRef.current
+				);
+				canvas.current.removeEventListener(
+					"touchstart",
+					handleMouseDownRef.current
+				);
+				canvas.current.removeEventListener(
+					"mouseup",
+					handleMouseUpRef.current
+				);
+				canvas.current.removeEventListener(
+					"mousemove",
+					trackMouseOnBoardRef.current
+				);
+				canvas.current.removeEventListener(
+					"mouseleave",
+					handleMouseUpRef.current
+				);
+				canvas.current.removeEventListener(
+					"touchend",
+					handleMouseUpRef.current
+				);
+				canvas.current.removeEventListener(
+					"touchmove",
+					trackMouseOnBoardRef.current
+				);
+			};
+		}
+	}, [status]);
 
 	return (
 		<>

@@ -22,12 +22,12 @@ export default function AppRoutes() {
 				<Route path="/register" element={<Register />} exact />
 				<Route path="/opengames/" element={<ListGames open={true} />} />
 				<Route path="/random/" element={<RandomGame />} />
+				<Route path="/game/:gameCode" element={<PlayGame />} />
 
 				<Route element={<Protected />}>
 					<Route path="/custom/" element={<CustomGame />} />
 					<Route path="/listgames/" element={<ListGames />} />
 					<Route path="/logout" element={<Logout />} exact />
-					<Route path="/game/:gameCode" element={<PlayGame />} />
 					<Route path="/dashboard/" element={<UserDashboard />} />
 				</Route>
 			</Routes>
