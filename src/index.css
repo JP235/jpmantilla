@@ -6,7 +6,7 @@ body {
 	-moz-osx-font-smoothing: grayscale;
 	font: 14px "Century Gothic", Futura, sans-serif;
 	overflow: hidden;
-	position: fixed;
+	/* position: fixed; */
 	height: 100%;
 	width: 100%;
 }

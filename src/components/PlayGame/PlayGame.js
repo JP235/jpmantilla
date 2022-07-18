@@ -17,6 +17,7 @@ import {
 	redoMove,
 	selectGame,
 	selectBlocks,
+	activeMovingBlock,
 	selectPastMoves,
 	selectFutureMoves,
 	selectNumberOfMoves,
@@ -24,6 +25,8 @@ import {
 	selectRows,
 	selectCoordsToBlocks,
 	selectSolved,
+	startMovingBlock,
+	stopMovingBlock,
 } from "./playGameSlice";
 
 import BoardCanvas from "../../common/canvas/BoardCanvas";
@@ -48,8 +51,7 @@ function PlayGame(props) {
 	const pastMoves = useSelector(selectPastMoves);
 	const futureMoves = useSelector(selectFutureMoves);
 
-	const [activeMovingBlock, setActiveMovingBlock] = useState(false);
-	const [targetBlock, setTargetBlock] = useState(null);
+	const movingBlock = useSelector(activeMovingBlock);
 
 	const [downX, setDownX] = useState(null);
 	const [downY, setDownY] = useState(null);
@@ -62,65 +64,62 @@ function PlayGame(props) {
 
 	const handleMouseDown = useCallback(
 		(event) => {
-			event.preventDefault();
+			// event.preventDefault();
 			// if (!event.target.className.includes("board")) return;
 			console.log("handleMouseDown");
 
 			const canvasPos = getMousePosCanvas(event.target, event);
 			console.log(canvasPos);
 			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-			console.log(x, y);
+			console.log("x, y", x, y);
 
-			setActiveMovingBlock(true);
+			dispatch(startMovingBlock());
 			setDownX(x);
 			setDownY(y);
-			setTargetBlock(coordsToBlocks[strXY(x, y)]);
 		},
-		[
-			coordsToBlocks,
-			setActiveMovingBlock,
-			setDownX,
-			setDownY,
-			setTargetBlock,
-		]
+		[coordsToBlocks, setDownX, setDownY]
 	);
 
 	const trackMouseOnBoard = (event) => {
-		event.preventDefault();
-		if (activeMovingBlock) {
-      console.log("trackMouseOnBoard");
-			const canvasPos = getMousePosCanvas(event.target, event);
-			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-			console.log(x, y);
+		console.log("trackMouseOnBoard");
+		// if (movingBlock) {
+		const canvasPos = getMousePosCanvas(event.target, event);
+		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+		console.log(x, y);
 
-			const deltX = x - downX;
-			const deltY = y - downY;
+		const deltX = x - downX;
+		const deltY = y - downY;
+		console.log(deltX, deltY, downX, downY);
 
+		if (
+			(deltX === 0 && Math.abs(deltY) === 1) ||
+			(Math.abs(deltX) === 1 && deltY === 0)
+		) {
 			if (
-				(deltX === 0 && Math.abs(deltY) === 1) ||
-				(Math.abs(deltX) === 1 && deltY === 0)
+				coordsToBlocks[strXY(downX, downY)] &&
+				dispatch(
+					isLegalMove(
+						coordsToBlocks[strXY(downX, downY)],
+						deltX,
+						deltY
+					)
+				)
 			) {
-				if (
-					targetBlock &&
-					dispatch(isLegalMove(targetBlock, deltX, deltY))
-				) {
-					setDownX(x);
-					setDownY(y);
-					dispatch(isGameWon());
-				}
+        console.log("this")
+				setDownX(x);
+				setDownY(y);
+				dispatch(isGameWon());
 			}
 		}
+		// }
 	};
 
 	const handleMouseUp = useCallback((event) => {
 		event.preventDefault();
-
-		setActiveMovingBlock(false);
-		setTargetBlock(null);
+		console.log("handleMouseUp");
+		dispatch(stopMovingBlock());
 		setDownX(null);
 		setDownY(null);
-		console.log("handleMouseUp");
-		console.log("");
 	}, []);
 
 	const trackMouseOnBoardRef = useRef(trackMouseOnBoard);
@@ -135,7 +134,7 @@ function PlayGame(props) {
 			handleMouseDownRef.current = null;
 			handleMouseUpRef.current = null;
 			trackMouseOnBoardRef.current = null;
-			setActiveMovingBlock(false);
+			dispatch(stopMovingBlock());
 		}
 	}, [solved]);
 
@@ -148,7 +147,8 @@ function PlayGame(props) {
 			);
 			canvas.current.addEventListener(
 				"touchstart",
-				handleMouseDownRef.current
+				handleMouseDownRef.current,
+				{ passive: true }
 			);
 			canvas.current.addEventListener(
 				"mousemove",
@@ -156,7 +156,8 @@ function PlayGame(props) {
 			);
 			canvas.current.addEventListener(
 				"touchmove",
-				trackMouseOnBoardRef.current
+				trackMouseOnBoardRef.current,
+				{ passive: true }
 			);
 			canvas.current.addEventListener(
 				"touchend",
@@ -265,7 +266,8 @@ function PlayGame(props) {
 								  );
 						}}
 					>
-						Save Game
+						{movingBlock ? "Save" : "Save Game"}
+						{/* Save Game */}
 					</button>
 				</div>
 			</div>

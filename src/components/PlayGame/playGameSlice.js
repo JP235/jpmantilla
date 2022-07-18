@@ -17,6 +17,7 @@ const initialState = {
 	win_block_x: null,
 	win_block_y: null,
 
+  movingBlock: false,
 	coordsToBlocks: {},
 	blocks: [],
 	pastMoves: [],
@@ -43,6 +44,12 @@ export const playGameSlice = createSlice({
 			state.solved = true;
 			state.blocks = action.payload;
 		},
+    startMovingBlock: (state) => {
+      state.movingBlock = true
+    },
+    stopMovingBlock: (state) => {
+      state.movingBlock = false
+    },
 		undoMove: (state) => {
 			const move = state.pastMoves.pop();
 
@@ -119,11 +126,12 @@ export const playGameSlice = createSlice({
 	},
 });
 
-export const { startPlaying, markSolved, moveBlock, undoMove, redoMove } =
+export const { startPlaying, markSolved,startMovingBlock,stopMovingBlock, moveBlock, undoMove, redoMove } =
 	playGameSlice.actions;
 
 export const selectGame = (state) => state.playGame.game;
 export const selectBlocks = (state) => state.playGame.blocks;
+export const activeMovingBlock = (state) => state.playGame.movingBlock;
 export const selectNumberOfMoves = (state) => state.playGame.number_of_moves;
 export const selectSolved = (state) => state.playGame.solved;
 export const selectTakenCoords = (state) => state.playGame.takenCoords;
