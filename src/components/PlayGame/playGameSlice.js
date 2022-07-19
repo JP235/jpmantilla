@@ -60,6 +60,7 @@ export const playGameSlice = createSlice({
 			state.downY = null;
 		},
 		undoMove: (state) => {
+      if (state.solved) return
 			const move = state.pastMoves.pop();
 
 			const targetBlock = move.targetBlock;
@@ -234,12 +235,12 @@ export const isGameWon = () => (dispatch, getState) => {
 	const win_block_y = getState().playGame.win_block_y;
 	const gg = blocks.find((b) => b.name === "GG");
 	if (gg.x === win_block_x && gg.y === win_block_y) {
-		alert("YOU WIN!");
-		let blocksWon = [];
+    let blocksWon = [];
 		for (let b of blocks) {
-			blocksWon.push({ ...b, color: "green" });
+      blocksWon.push({ ...b, color: "green" });
 		}
 		dispatch(markSolved(blocksWon));
 		dispatch(stopMovingBlock());
+    setTimeout(()=>{alert("YOU WIN!")}, 200);
 	}
 };

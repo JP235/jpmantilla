@@ -13,7 +13,7 @@ function App() {
 			<div className="Content">
 				<AppRoutes />
 			</div>
-			{/* <Footer /> */}
+			<Footer />
 		</>
 	);
 }

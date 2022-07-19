@@ -15,7 +15,6 @@ import {
 	redoMove,
 	selectGame,
 	selectBlocks,
-	activeMovingBlock,
 	selectPastMoves,
 	selectFutureMoves,
 	selectNumberOfMoves,
@@ -47,20 +46,21 @@ function PlayGame() {
 	const pastMoves = useSelector(selectPastMoves);
 	const futureMoves = useSelector(selectFutureMoves);
 
-	const movingBlock = useSelector(activeMovingBlock);
-
 	const canvas = useRef(null);
 
 	useEffect(() => {
 		dispatch(getGame(params.gameCode));
 	}, [dispatch, params.gameCode]);
 
-	const startMove = useCallback((event) => {
-		// console.log("startMove");
-		const canvasPos = getMousePosCanvas(event.target, event);
-		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-		dispatch(startMovingBlock({ x, y }));
-	}, [dispatch]);
+	const startMove = useCallback(
+		(event) => {
+			// console.log("startMove");
+			const canvasPos = getMousePosCanvas(event.target, event);
+			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+			dispatch(startMovingBlock({ x, y }));
+		},
+		[dispatch]
+	);
 
 	const track = useCallback(
 		(event) => {
@@ -72,11 +72,14 @@ function PlayGame() {
 		[dispatch]
 	);
 
-	const endMove = useCallback((event) => {
-		event.preventDefault();
-		// console.log("endMove");
-		dispatch(stopMovingBlock());
-	}, [dispatch]);
+	const endMove = useCallback(
+		(event) => {
+			event.preventDefault();
+			// console.log("endMove");
+			dispatch(stopMovingBlock());
+		},
+		[dispatch]
+	);
 
 	const startMoveRef = useRef(startMove);
 	startMoveRef.current = startMove;
@@ -91,6 +94,7 @@ function PlayGame() {
 			endMoveRef.current = null;
 			makeMoveRef.current = null;
 		}
+		console.log("solved");
 	}, [solved]);
 
 	useEffect(() => {
@@ -140,7 +144,7 @@ function PlayGame() {
 				);
 			};
 		}
-	}, [status]);
+	}, [status, solved]);
 
 	return (
 		<>
@@ -203,8 +207,7 @@ function PlayGame() {
 								  );
 						}}
 					>
-						{movingBlock ? "Save" : "Save Game"}
-						{/* Save Game */}
+						Save Game
 					</button>
 				</div>
 			</div>
