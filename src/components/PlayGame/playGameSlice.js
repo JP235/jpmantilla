@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { strXY } from "../../common/utils/TupOpps";
 
 import {
 	calcCoordsToBlocks,
@@ -17,7 +18,10 @@ const initialState = {
 	win_block_x: null,
 	win_block_y: null,
 
-  movingBlock: false,
+	movingBlock: false,
+	downX: null,
+	downY: null,
+
 	coordsToBlocks: {},
 	blocks: [],
 	pastMoves: [],
@@ -44,12 +48,17 @@ export const playGameSlice = createSlice({
 			state.solved = true;
 			state.blocks = action.payload;
 		},
-    startMovingBlock: (state) => {
-      state.movingBlock = true
-    },
-    stopMovingBlock: (state) => {
-      state.movingBlock = false
-    },
+		startMovingBlock: (state, action) => {
+			state.movingBlock = true;
+			state.downX = action.payload.x;
+			state.downY = action.payload.y;
+		},
+		trackMovingBlock: (state, action) => {},
+		stopMovingBlock: (state) => {
+			state.movingBlock = false;
+			state.downX = null;
+			state.downY = null;
+		},
 		undoMove: (state) => {
 			const move = state.pastMoves.pop();
 
@@ -126,8 +135,15 @@ export const playGameSlice = createSlice({
 	},
 });
 
-export const { startPlaying, markSolved,startMovingBlock,stopMovingBlock, moveBlock, undoMove, redoMove } =
-	playGameSlice.actions;
+export const {
+	startPlaying,
+	markSolved,
+	startMovingBlock,
+	stopMovingBlock,
+	moveBlock,
+	undoMove,
+	redoMove,
+} = playGameSlice.actions;
 
 export const selectGame = (state) => state.playGame.game;
 export const selectBlocks = (state) => state.playGame.blocks;
@@ -156,6 +172,27 @@ function changeBlockPos(targetBlock, deltX, deltY, blocks) {
 	blocks = [...blocks.filter((b) => b.name !== targetBlock), b];
 	return blocks;
 }
+
+export const trackMove = (x, y) => (dispatch, getState) => {
+	const { downX, downY, coordsToBlocks } = getState().playGame;
+	const deltX = x - downX;
+	const deltY = y - downY;
+
+	if (
+		(deltX === 0 && Math.abs(deltY) === 1) ||
+		(Math.abs(deltX) === 1 && deltY === 0)
+	) {
+		if (
+			coordsToBlocks[strXY(downX, downY)] &&
+			dispatch(
+				isLegalMove(coordsToBlocks[strXY(downX, downY)], deltX, deltY)
+			)
+		) {
+			dispatch(startMovingBlock({ x, y }));
+			dispatch(isGameWon());
+		}
+	}
+};
 
 export const isLegalMove =
 	(targetBlock, deltX, deltY) => (dispatch, getState) => {
@@ -197,11 +234,12 @@ export const isGameWon = () => (dispatch, getState) => {
 	const win_block_y = getState().playGame.win_block_y;
 	const gg = blocks.find((b) => b.name === "GG");
 	if (gg.x === win_block_x && gg.y === win_block_y) {
-		console.log("YOU WIN!");
+		alert("YOU WIN!");
 		let blocksWon = [];
 		for (let b of blocks) {
 			blocksWon.push({ ...b, color: "green" });
 		}
 		dispatch(markSolved(blocksWon));
+		dispatch(stopMovingBlock());
 	}
 };

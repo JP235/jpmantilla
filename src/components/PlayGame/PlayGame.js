@@ -2,7 +2,7 @@ import React from "react";
 
 import "./playGame.css";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
@@ -11,8 +11,6 @@ import { selectGameStatus } from "../../api/game/gameAPISlice";
 import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 
 import {
-	isLegalMove,
-	isGameWon,
 	undoMove,
 	redoMove,
 	selectGame,
@@ -23,19 +21,18 @@ import {
 	selectNumberOfMoves,
 	selectCols,
 	selectRows,
-	selectCoordsToBlocks,
 	selectSolved,
 	startMovingBlock,
 	stopMovingBlock,
+	trackMove,
 } from "./playGameSlice";
 
 import BoardCanvas from "../../common/canvas/BoardCanvas";
-import { strXY } from "../../common/utils/TupOpps";
 import { getMousePosCanvas } from "../../common/canvas/getMousePosCanvas";
 import { posToCoord } from "../../common/canvas/posToCoord";
 import { OPENCODES } from "../../api/game/openGamesData";
 
-function PlayGame(props) {
+function PlayGame() {
 	const dispatch = useDispatch();
 	const params = useParams();
 
@@ -47,14 +44,10 @@ function PlayGame(props) {
 	const cols = useSelector(selectCols);
 	const rows = useSelector(selectRows);
 	const blocks = useSelector(selectBlocks);
-	const coordsToBlocks = useSelector(selectCoordsToBlocks);
 	const pastMoves = useSelector(selectPastMoves);
 	const futureMoves = useSelector(selectFutureMoves);
 
 	const movingBlock = useSelector(activeMovingBlock);
-
-	const [downX, setDownX] = useState(null);
-	const [downY, setDownY] = useState(null);
 
 	const canvas = useRef(null);
 
@@ -62,143 +55,88 @@ function PlayGame(props) {
 		dispatch(getGame(params.gameCode));
 	}, [dispatch, params.gameCode]);
 
-	const handleMouseDown = useCallback(
-		(event) => {
-			// event.preventDefault();
-			// if (!event.target.className.includes("board")) return;
-			console.log("handleMouseDown");
-
-			const canvasPos = getMousePosCanvas(event.target, event);
-			console.log(canvasPos);
-			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-			console.log("x, y", x, y);
-
-			dispatch(startMovingBlock());
-			setDownX(x);
-			setDownY(y);
-		},
-		[coordsToBlocks, setDownX, setDownY]
-	);
-
-	const trackMouseOnBoard = (event) => {
-		console.log("trackMouseOnBoard");
-		// if (movingBlock) {
+	const startMove = useCallback((event) => {
+		// console.log("startMove");
 		const canvasPos = getMousePosCanvas(event.target, event);
 		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-		console.log(x, y);
+		dispatch(startMovingBlock({ x, y }));
+	}, [dispatch]);
 
-		const deltX = x - downX;
-		const deltY = y - downY;
-		console.log(deltX, deltY, downX, downY);
+	const track = useCallback(
+		(event) => {
+			// console.log("track");
+			const canvasPos = getMousePosCanvas(event.target, event);
+			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+			dispatch(trackMove(x, y));
+		},
+		[dispatch]
+	);
 
-		if (
-			(deltX === 0 && Math.abs(deltY) === 1) ||
-			(Math.abs(deltX) === 1 && deltY === 0)
-		) {
-			if (
-				coordsToBlocks[strXY(downX, downY)] &&
-				dispatch(
-					isLegalMove(
-						coordsToBlocks[strXY(downX, downY)],
-						deltX,
-						deltY
-					)
-				)
-			) {
-        console.log("this")
-				setDownX(x);
-				setDownY(y);
-				dispatch(isGameWon());
-			}
-		}
-		// }
-	};
-
-	const handleMouseUp = useCallback((event) => {
+	const endMove = useCallback((event) => {
 		event.preventDefault();
-		console.log("handleMouseUp");
+		// console.log("endMove");
 		dispatch(stopMovingBlock());
-		setDownX(null);
-		setDownY(null);
-	}, []);
+	}, [dispatch]);
 
-	const trackMouseOnBoardRef = useRef(trackMouseOnBoard);
-	trackMouseOnBoardRef.current = trackMouseOnBoard;
-	const handleMouseDownRef = useRef(handleMouseDown);
-	handleMouseDownRef.current = handleMouseDown;
-	const handleMouseUpRef = useRef(handleMouseUp);
-	handleMouseUpRef.current = handleMouseUp;
+	const startMoveRef = useRef(startMove);
+	startMoveRef.current = startMove;
+	const makeMoveRef = useRef(track);
+	makeMoveRef.current = track;
+	const endMoveRef = useRef(endMove);
+	endMoveRef.current = endMove;
 
 	useEffect(() => {
 		if (solved) {
-			handleMouseDownRef.current = null;
-			handleMouseUpRef.current = null;
-			trackMouseOnBoardRef.current = null;
-			dispatch(stopMovingBlock());
+			startMoveRef.current = null;
+			endMoveRef.current = null;
+			makeMoveRef.current = null;
 		}
 	}, [solved]);
 
 	useEffect(() => {
 		if (status === "game loaded") {
 			canvas.current = document.getElementById("playBoard");
-			canvas.current.addEventListener(
-				"mousedown",
-				handleMouseDownRef.current
-			);
+			canvas.current.addEventListener("mousedown", startMoveRef.current);
 			canvas.current.addEventListener(
 				"touchstart",
-				handleMouseDownRef.current,
+				startMoveRef.current,
 				{ passive: true }
 			);
-			canvas.current.addEventListener(
-				"mousemove",
-				trackMouseOnBoardRef.current
-			);
-			canvas.current.addEventListener(
-				"touchmove",
-				trackMouseOnBoardRef.current,
-				{ passive: true }
-			);
-			canvas.current.addEventListener(
-				"touchend",
-				handleMouseUpRef.current
-			);
-			canvas.current.addEventListener(
-				"mouseup",
-				handleMouseUpRef.current
-			);
-			canvas.current.addEventListener(
-				"mouseleave",
-				handleMouseUpRef.current
-			);
+			canvas.current.addEventListener("mousemove", makeMoveRef.current);
+			canvas.current.addEventListener("touchmove", makeMoveRef.current, {
+				passive: true,
+			});
+			canvas.current.addEventListener("touchend", endMoveRef.current);
+			canvas.current.addEventListener("mouseup", endMoveRef.current);
+			canvas.current.addEventListener("mouseleave", endMoveRef.current);
 			return () => {
 				canvas.current.removeEventListener(
 					"mousedown",
-					handleMouseDownRef.current
+					startMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchstart",
-					handleMouseDownRef.current
+					startMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"mouseup",
-					handleMouseUpRef.current
+					endMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"mousemove",
-					trackMouseOnBoardRef.current
+					makeMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"mouseleave",
-					handleMouseUpRef.current
+					endMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchend",
-					handleMouseUpRef.current
+					endMoveRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchmove",
-					trackMouseOnBoardRef.current
+					makeMoveRef.current
 				);
 			};
 		}
@@ -211,7 +149,6 @@ function PlayGame(props) {
 					rows={rows}
 					cols={cols}
 					blocks={blocks}
-					onMouseMove={trackMouseOnBoardRef.current}
 					id="playBoard"
 				/>
 

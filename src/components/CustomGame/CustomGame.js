@@ -269,7 +269,8 @@ function CustomGame() {
       
 			document.removeEventListener("touchmove", trackMouseOnBoard, false);
 		};
-	}, [handleMouseDown,trackMouseOnBoard, handleMouseUp]);
+    // eslint-disable-next-line
+	}, [handleMouseDown, handleMouseUp]);
 
 	const menuStepZero = (
 		<div className="step zero">
