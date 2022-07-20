@@ -4,7 +4,7 @@
 	min-height: 300px;
 	/* height: 100%; */
     /* max-height: max-content; */
-    outline: dashed 1px black;
+    /* outline: dashed 1px black; */
     display: flex;
     justify-content: center
 }

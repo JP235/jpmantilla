@@ -1,5 +1,6 @@
 import React from "react";
 import { Grid, Button, ButtonGroup, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
 	return (
@@ -17,9 +18,9 @@ const Navbar = () => {
 						color="secondary"
 						fullWidth={true}
 					>
-						<Button color="primary" href="/">
+						{/* <Button color="primary" href="/">
 							Home
-						</Button>
+						</Button> */}
 						<Button color="secondary" href="/custom">
 							Custom Game
 						</Button>
