@@ -7,8 +7,6 @@ const classic = {
 		win_block_y: 1,
 		number_of_moves: 0,
 		solved: null,
-    img_curr: "/media/open/curr/classic.png",
-    img_win: "/media/open/win/classic.png",
 	},
 	moves: [],
 	blocks: [
@@ -33,8 +31,6 @@ const open1 = {
 		win_block_y: 1,
 		number_of_moves: 0,
 		solved: null,
-    img_win: "/media/open/curr/open1.png",
-    img_curr: "/media/open/win/open1.png"
 	},
 	moves: [],
 	blocks: [
@@ -58,8 +54,6 @@ const open2 = {
 		win_block_y: 1,
 		number_of_moves: 0,
 		solved: null,
-    img_win: "/media/open/curr/open2.png",
-    img_curr: "/media/open/win/open2.png"
 	},
 	moves: [],
 	blocks: [
@@ -83,8 +77,6 @@ const open3 = {
 		win_block_y: 1,
 		number_of_moves: 0,
 		solved: null,
-    img_win: "/media/open/curr/open3.png",
-    img_curr: "/media/open/win/open3.png"
 	},
 	moves: [],
 	blocks: [

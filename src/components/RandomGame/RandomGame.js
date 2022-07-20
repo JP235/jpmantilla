@@ -16,7 +16,7 @@ function RandomGame(props) {
 
 	if (!loading) {
 		const board = boards[Math.floor(Math.random() * boards.length)];
-    return <Navigate to={`/game/${board.code}`}/>
+    return <Navigate to={`/game/${board.game.code}`}/>
 	}
   return <></>
 }

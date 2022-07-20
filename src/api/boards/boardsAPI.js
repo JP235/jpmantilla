@@ -10,7 +10,7 @@ import { loadingBoards, boardsLoaded, deletedGame } from "./boardsAPISlice";
 export const getBoards = (openboards=false) => (dispatch, getState) => {
 	dispatch(loadingBoards());
   if (openboards){
-    dispatch(boardsLoaded(OPENBOARDSLIST.map(e => e.game)))
+    dispatch(boardsLoaded(OPENBOARDSLIST))
     dispatch(
       createMessage({
         type: "Loaded Open Boards",

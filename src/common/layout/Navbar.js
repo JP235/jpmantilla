@@ -23,15 +23,15 @@ const Navbar = () => {
 						<Button color="secondary" href="/custom">
 							Custom Game
 						</Button>
-						<Button color="primary" href="/listgames">
+						{/* <Button color="primary" href="/listgames">
 							Saved Games
-						</Button>
-						<Button color="secondary" href="/opengames">
+						</Button> */}
+						<Button color="primary" href="/opengames">
 							Open Games
 						</Button>
-						<Button color="primary" href="/game/classic">
+						{/* <Button color="primary" href="/game/classic">
 							Classic Game
-						</Button>
+						</Button> */}
 						<Button color="secondary" href="/random">
 							Random Game
 						</Button>

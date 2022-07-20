@@ -26,7 +26,7 @@ import {
 	trackMove,
 } from "./playGameSlice";
 
-import BoardCanvas from "../../common/canvas/BoardCanvas";
+import BoardsDisplay from "../../common/canvas/BoardsDisplay";
 import { getMousePosCanvas } from "../../common/canvas/getMousePosCanvas";
 import { posToCoord } from "../../common/canvas/posToCoord";
 import { OPENCODES } from "../../api/game/openGamesData";
@@ -149,26 +149,7 @@ function PlayGame() {
 	return (
 		<>
 			<div className="boards-container">
-				<BoardCanvas
-					rows={rows}
-					cols={cols}
-					blocks={blocks}
-					id="playBoard"
-				/>
-
-				<BoardCanvas
-					rows={rows}
-					cols={cols}
-					blocks={[
-						{
-							...blocks.find((bl) => bl.name === "GG"),
-							x: game.win_block_x,
-							y: game.win_block_y,
-							color: "#c0ca33",
-						},
-					]}
-					id="winBoard"
-				/>
+				<BoardsDisplay blocks={blocks} game={game} type="play"/>
 
 				<div className="game-buttons-container">
 					<button

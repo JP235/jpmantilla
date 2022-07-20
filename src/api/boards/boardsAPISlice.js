@@ -13,12 +13,12 @@ export const boardsSlice = createSlice({
 			state.isLoading = true;
 		},
 		boardsLoaded: (state, action) => {
-			state.boards = action.payload;
+			state.boards = action.payload
 			state.isLoading = false;
 		},
 		deletedGame: (state, action) => {
 			state.boards = state.boards.filter(
-				(board) => board.code !== action.payload
+				(board) => board.game.code !== action.payload
 			);
 		},
 	},
