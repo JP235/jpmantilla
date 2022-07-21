@@ -23,8 +23,7 @@ import {
 } from "./playGameSlice";
 
 import BoardsDisplay from "../../common/canvas/BoardsDisplay";
-import { getMousePosCanvas } from "../../common/canvas/getMousePosCanvas";
-import { posToCoord } from "../../common/canvas/posToCoord";
+import { getPointCoords } from "../../common/canvas/getFromCanvas";
 import { OPENCODES } from "../../api/game/openGamesData";
 
 function PlayGame() {
@@ -47,15 +46,15 @@ function PlayGame() {
 
 	const handleDown = (event) => {
 		// console.log("startMove");
-		const canvasPos = getMousePosCanvas(event.target, event);
-		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+    const [x, y] = getPointCoords(event.target, event);
+
 		dispatch(startMovingBlock({ x, y }));
 	};
 
 	const track = (event) => {
 		// console.log("track");
-		const canvasPos = getMousePosCanvas(event.target, event);
-		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+    const [x, y] = getPointCoords(event.target, event);
+
 		dispatch(trackMove(x, y));
 	};
 
