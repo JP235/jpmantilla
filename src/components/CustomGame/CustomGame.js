@@ -15,19 +15,28 @@ import BoardCanvas from "../../common/canvas/BoardCanvas";
 
 import {
 	prevStep,
-	nextStep,
-	addBlock,
-	removeBlock,
-	removeLast,
-	placeWinBlock,
-	changeCols,
-	changeRows,
+  nextStep,
+  changeCols,
+  changeRows,
+  startDrawing,
+  stopDrawing,
+  startMovingWinBlock,
+  stopMovingWinBlock,
+  markBlock,
+  unmarkBlock,
+  addBlock,
+  removeBlock,
+  removeLast,
+  placeWinBlock,
 	selectStep,
 	selectCols,
 	selectRows,
 	selectBlockName,
 	selectTakenCoords,
 	selectCoordsToBlocks,
+	selectDrawingBlock,
+	selectMovingWinBlock,
+  selectMarkedBlock,
 	selectBlocks,
 	selectWinBlock,
 } from "./customGameSlice";
@@ -41,27 +50,25 @@ function CustomGame() {
 	const rows = useSelector(selectRows);
 	const blockName = useSelector(selectBlockName);
 	const blocks = useSelector(selectBlocks);
-	const [nameShift, setNameShift] = useState([]);
-	const [noNameShift, setNoNameShift] = useState([]);
+	const coordsToBlocks = useSelector(selectCoordsToBlocks);
 
 	const takenCoords = useSelector(selectTakenCoords);
 	const winBlock = useSelector(selectWinBlock);
 
-	const coordsToBlocks = useSelector(selectCoordsToBlocks);
-	const [markedBlock, setMarkedBlock] = useState(null);
+	const drawingBlock = useSelector(selectDrawingBlock);
+	const movingWinBlock = useSelector(selectMovingWinBlock); 
+	const markedBlock = useSelector(selectMarkedBlock);
 
-	const [newBlock, setNewBlock] = useState(null);
 	const [showBlocks, setShowBlocks] = useState([]);
-
+	const [newBlock, setNewBlock] = useState(null);
+	const [nameShift, setNameShift] = useState([]);
+	const [noNameShift, setNoNameShift] = useState([]);
 	const [blockH, setBlockH] = useState(0);
 	const [blockW, setBlockW] = useState(0);
 	const [blockX, setBlockX] = useState(0);
 	const [blockY, setBlockY] = useState(0);
 	const [blockX0, setBlockX0] = useState(0);
 	const [blockY0, setBlockY0] = useState(0);
-
-	const [drawingBlock, setDrawingBlock] = useState(false);
-	const [movingWinBlock, setMovingWinBlock] = useState(false);
 
 	const canvas = useRef(null);
 
@@ -94,7 +101,6 @@ function CustomGame() {
 		}
 		dispatch(nextStep());
 	};
-
 	const makeWinBoard = (winName) => {
 		if (!winName) return;
 		let shiftedNames = [];
@@ -163,11 +169,11 @@ function CustomGame() {
 		if (x < 0 || x >= rows || y < 0 || y >= cols) {
 			return;
 		}
-		if (takenCoords.includes(strXY(x, y))) {
-			setMarkedBlock(strXY(x, y));
+    if (takenCoords.includes(strXY(x, y))) {
+			dispatch(markBlock(strXY(x, y)));
 			return;
 		}
-		setDrawingBlock(true);
+		dispatch(startDrawing());
 		setBlockH(1);
 		setBlockW(1);
 		setBlockX(x);
@@ -183,9 +189,9 @@ function CustomGame() {
 		if (event.target.className.includes("setup-board")) {
 			console.log(step);
 			step === 1 && startDrawingBlock(x, y);
-			step === 2 && setMarkedBlock(strXY(x, y));
+			step === 2 && dispatch(markBlock(strXY(x, y)));
 		} else if (event.target.className.includes("win-board") && step === 2) {
-			setMovingWinBlock(true);
+			dispatch(startMovingWinBlock());
 			dispatch(placeWinBlock({ x, y }));
 		}
 		console.log(drawingBlock);
@@ -194,7 +200,7 @@ function CustomGame() {
 	const track = (event) => {
 		const canvasPos = getMousePos(event.target, event);
 		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-    console.log(drawingBlock)
+		// console.log(drawingBlock);
 		if (drawingBlock) {
 			if (x < 0 || x >= rows || y < 0 || y >= cols) {
 				return;
@@ -220,23 +226,25 @@ function CustomGame() {
 	};
 
 	const handleUp = (event) => {
-		setDrawingBlock(false);
-		setMovingWinBlock(false);
-    console.log(drawingBlock)
-		if (drawingBlock) {
-			dispatch(addBlock(newBlock));
-		}
-		if (markedBlock) {
+		dispatch(stopDrawing())
+		dispatch(stopMovingWinBlock());
+		console.log("markedBlock",markedBlock);
+		// if (drawingBlock) {
+			
+		// }
+		// if (markedBlock) {
 			const canvasPos = getMousePos(event.target, event);
 			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
 			if (markedBlock !== strXY(x, y)) {
+        console.log(newBlock)
+        dispatch(addBlock(newBlock));
 				return;
 			}
 			step === 1 && dispatch(removeBlock(coordsToBlocks[markedBlock]));
 			step === 2 && makeWinBoard(coordsToBlocks[markedBlock]);
-		}
+		// }
 
-		setMarkedBlock(null);
+		dispatch(markBlock(null));
 	};
 
 	const handleDownRef = useRef(handleDown);
@@ -346,6 +354,7 @@ function CustomGame() {
 				game={game}
 				type="create"
 			/> */}
+      {drawingBlock && "drawing-block"}
 			<BoardCanvas
 				rows={rows}
 				cols={cols}

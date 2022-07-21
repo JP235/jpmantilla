@@ -16,34 +16,55 @@ const initialState = {
 	blocks: [],
 	takenCoords: [],
 	coordsToBlocks: {},
+  drawingBlock: false,
+  movingWinBlock: false,
+  markedBlock: null,
 };
 
 export const customGameSlice = createSlice({
 	name: "customGame",
 	initialState,
 	reducers: {
+    prevStep: (state) => {
+      state.step -= 1;
+      switch (state.step) {
+        case 0:
+          state.blocks = [];
+          state.winBlock = null;
+          state.blockName = 1;
+          state.takenCoords = [];
+          break;
+        default:
+          break;
+      }
+    },
+    nextStep: (state) => {
+      state.step += 1;
+    },
 		changeCols: (state, action) => {
 			state.cols = action.payload < 1 ? 1 : action.payload > 10 ? 10 : action.payload;
 		},
 		changeRows: (state, action) => {
 			state.rows = action.payload < 1 ? 1 : action.payload > 10 ? 10 : action.payload;
 		},
-		prevStep: (state) => {
-			state.step -= 1;
-			switch (state.step) {
-				case 0:
-					state.blocks = [];
-          state.winBlock = null;
-					state.blockName = 1;
-					state.takenCoords = [];
-					break;
-				default:
-					break;
-			}
-		},
-		nextStep: (state) => {
-			state.step += 1;
-		},
+    startDrawing: (state) => {
+      state.drawingBlock = true;
+    },
+    stopDrawing: (state) => {
+      state.drawingBlock = false;
+    },
+    startMovingWinBlock: (state) => {
+      state.movingWinBlock = true;
+    },
+    stopMovingWinBlock: (state) => {
+      state.movingWinBlock = false;
+    }, 
+    markBlock: (state, action) => {
+      state.markedBlock = action.payload;
+    },
+    // unmarkBlock: (state) => {
+    //   state.markedBlock = null;
+    // },
 		addBlock: (state, action) => {
 			state.blocks = [...state.blocks, action.payload];
 			state.blockName === 1 &&
@@ -98,13 +119,19 @@ export const customGameSlice = createSlice({
 });
 
 export const {
-	changeCols,
-	changeRows,
-	prevStep,
-	nextStep,
-	addBlock,
-	removeBlock,
-	placeWinBlock,
+  prevStep,
+  nextStep,
+  changeCols,
+  changeRows,
+  startDrawing,
+  stopDrawing,
+  startMovingWinBlock,
+  stopMovingWinBlock,
+  markBlock,
+  // unmarkBlock,
+  addBlock,
+  removeBlock,
+  placeWinBlock,
 } = customGameSlice.actions;
 
 export const selectStep = (state) => state.customGame.step;
@@ -114,6 +141,9 @@ export const selectBlockName = (state) => state.customGame.blockName;
 export const selectBlocks = (state) => state.customGame.blocks;
 export const selectTakenCoords = (state) => state.customGame.takenCoords;
 export const selectCoordsToBlocks = (state) => state.customGame.coordsToBlocks;
+export const selectDrawingBlock = (state) => state.customGame.drawingBlock;
+export const selectMovingWinBlock = (state) => state.customGame.movingWinBlock;
+export const selectMarkedBlock = (state) => state.customGame.markedBlock;
 export const selectWinBlock = (state) => state.customGame.winBlock;
 
 export const removeLast = () => (dispatch, getState) => {
