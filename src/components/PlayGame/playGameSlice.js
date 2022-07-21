@@ -8,8 +8,6 @@ import {
 
 const initialState = {
 	game: {},
-	cols: null,
-	rows: null,
 
 	auto_solved: null,
 	solved: null,
@@ -35,10 +33,7 @@ export const playGameSlice = createSlice({
 		startPlaying: (state, action) => {
 			state.blocks = action.payload.blocks;
 			state.game = action.payload.game;
-			state.cols = action.payload.game.cols;
-			state.rows = action.payload.game.rows;
 			state.pastMoves = action.payload.moves;
-			state.number_of_moves = action.payload.game.number_of_moves;
 			state.solved = action.payload.game.solved;
 			state.win_block_x = action.payload.game.win_block_x;
 			state.win_block_y = action.payload.game.win_block_y;
@@ -53,14 +48,13 @@ export const playGameSlice = createSlice({
 			state.downX = action.payload.x;
 			state.downY = action.payload.y;
 		},
-		trackMovingBlock: (state, action) => {},
 		stopMovingBlock: (state) => {
 			state.movingBlock = false;
 			state.downX = null;
 			state.downY = null;
 		},
 		undoMove: (state) => {
-      if (state.solved) return
+			if (state.solved) return;
 			const move = state.pastMoves.pop();
 
 			const targetBlock = move.targetBlock;
@@ -68,7 +62,7 @@ export const playGameSlice = createSlice({
 			const deltY = -move.deltY;
 
 			state.futureMoves.push(move);
-			state.number_of_moves -= 1;
+			state.game.number_of_moves -= 1;
 
 			state.blocks = changeBlockPos(
 				targetBlock,
@@ -85,7 +79,7 @@ export const playGameSlice = createSlice({
 			const deltY = move.deltY;
 
 			state.pastMoves.push(move);
-			state.number_of_moves += 1;
+			state.game.number_of_moves += 1;
 
 			state.blocks = changeBlockPos(
 				targetBlock,
@@ -106,15 +100,21 @@ export const playGameSlice = createSlice({
 				lastMove.deltY === -deltY
 			) {
 				state.futureMoves.push(state.pastMoves.pop());
-				state.number_of_moves -= 1;
+				state.game.number_of_moves -= 1;
 			} else if (
 				nextMove &&
 				nextMove.targetBlock === targetBlock &&
 				nextMove.deltX === -deltX &&
 				nextMove.deltY === -deltY
 			) {
-				state.pastMoves.push(state.futureMoves.pop());
-				state.number_of_moves += 1;
+				state.futureMoves.pop();
+				state.pastMoves.push({
+					targetBlock,
+					deltX,
+					deltY,
+					game: state.game.id,
+				});
+				state.game.number_of_moves += 1;
 			} else {
 				state.pastMoves.push({
 					targetBlock,
@@ -123,7 +123,7 @@ export const playGameSlice = createSlice({
 					game: state.game.id,
 				});
 				state.futureMoves = [];
-				state.number_of_moves += 1;
+				state.game.number_of_moves += 1;
 			}
 			state.blocks = changeBlockPos(
 				targetBlock,
@@ -149,7 +149,6 @@ export const {
 export const selectGame = (state) => state.playGame.game;
 export const selectBlocks = (state) => state.playGame.blocks;
 export const activeMovingBlock = (state) => state.playGame.movingBlock;
-export const selectNumberOfMoves = (state) => state.playGame.number_of_moves;
 export const selectSolved = (state) => state.playGame.solved;
 export const selectTakenCoords = (state) => state.playGame.takenCoords;
 export const selectCoordsToBlocks = (state) => state.playGame.coordsToBlocks;
@@ -160,8 +159,6 @@ export const selectPastMoves = (state) => state.playGame.pastMoves;
 export const selectFutureMoves = (state) => state.playGame.futureMoves;
 
 export const selectGameCode = (state) => state.playGame.gameCode;
-export const selectCols = (state) => state.playGame.cols;
-export const selectRows = (state) => state.playGame.rows;
 export const selectAutoSolved = (state) => state.playGame.auto_solved;
 
 export default playGameSlice.reducer;
@@ -200,7 +197,8 @@ export const isLegalMove =
 		// Check that it moves to an empty space, without overlapping with other blocks,
 		// or moving out of bounds and move the block
 
-		const { blocks, coordsToBlocks, rows, cols } = getState().playGame;
+		const { blocks, coordsToBlocks, game } = getState().playGame;
+		const { rows, cols } = game;
 
 		const block = blocks.find((b) => b.name === targetBlock);
 		const coordsAfterMove = calcBlockCoords({
@@ -235,9 +233,9 @@ export const isGameWon = () => (dispatch, getState) => {
 	const win_block_y = getState().playGame.win_block_y;
 	const gg = blocks.find((b) => b.name === "GG");
 	if (gg.x === win_block_x && gg.y === win_block_y) {
-    let blocksWon = [];
+		let blocksWon = [];
 		for (let b of blocks) {
-      blocksWon.push({ ...b, color: "green" });
+			blocksWon.push({ ...b, color: "green" });
 		}
 		dispatch(markSolved(blocksWon));
 		dispatch(stopMovingBlock());

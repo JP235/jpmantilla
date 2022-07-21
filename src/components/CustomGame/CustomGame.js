@@ -2,14 +2,16 @@ import React from "react";
 
 import "./CustomGame.css";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
+import { blockSample } from "../../common/canvas/constants";
 import { calcBlockCoords, strXY } from "../../common/utils/TupOpps";
 import { posToCoord } from "../../common/canvas/posToCoord";
 import { getMousePosCanvas as getMousePos } from "../../common/canvas/getMousePosCanvas";
 import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 import BoardCanvas from "../../common/canvas/BoardCanvas";
+// import BoardsDisplay from "../../common/canvas/BoardsDisplay";
 
 import {
 	prevStep,
@@ -61,13 +63,7 @@ function CustomGame() {
 	const [drawingBlock, setDrawingBlock] = useState(false);
 	const [movingWinBlock, setMovingWinBlock] = useState(false);
 
-	const blockSample = {
-		name: "XX",
-		x: 0,
-		y: 0,
-		h: 1,
-		l: 1,
-	};
+	const canvas = useRef(null);
 
 	const prevStepActions = () => {
 		switch (step) {
@@ -141,9 +137,12 @@ function CustomGame() {
 				h: blockH,
 				l: blockW,
 			};
+			// check if block is in free spaces
 			if (
 				drawingBlock &&
-				!takenCoords.some((v) => calcBlockCoords(nb).includes(v))
+				!takenCoords.some((coord) =>
+					calcBlockCoords(nb).includes(coord)
+				)
 			) {
 				setNewBlock(nb);
 				setShowBlocks([...blocks, nb]);
@@ -160,51 +159,42 @@ function CustomGame() {
 		blockY,
 	]);
 
-	const startDrawingBlock = useCallback(
-		(x, y) => {
-			if (x < 0 || x >= rows || y < 0 || y >= cols) {
-				return;
-			}
-			if (takenCoords.includes(strXY(x, y))) {
-				setMarkedBlock(strXY(x, y));
-				return;
-			}
-			setDrawingBlock(true);
-			setBlockH(1);
-			setBlockW(1);
-			setBlockX(x);
-			setBlockY(y);
-			setBlockX0(x);
-			setBlockY0(y);
-		},
-		[cols, rows, takenCoords]
-	);
+	const startDrawingBlock = (x, y) => {
+		if (x < 0 || x >= rows || y < 0 || y >= cols) {
+			return;
+		}
+		if (takenCoords.includes(strXY(x, y))) {
+			setMarkedBlock(strXY(x, y));
+			return;
+		}
+		setDrawingBlock(true);
+		setBlockH(1);
+		setBlockW(1);
+		setBlockX(x);
+		setBlockY(y);
+		setBlockX0(x);
+		setBlockY0(y);
+	};
 
-	const handleMouseDown = useCallback(
-		(event) => {
-			if (!event.target.className.includes("board")) {
-				return;
-			}
-			const canvasPos = getMousePos(event.target, event);
-			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-
-			if (event.target.className.includes("setup-board")) {
-				step === 1 && startDrawingBlock(x, y);
-				step === 2 && setMarkedBlock(strXY(x, y));
-			} else if (
-				event.target.className.includes("win-board") &&
-				step === 2
-			) {
-				setMovingWinBlock(true);
-				dispatch(placeWinBlock({ x, y }));
-			}
-		},
-		[step, startDrawingBlock, dispatch]
-	);
-
-	const trackMouseOnBoard = (event) => {
+	const handleDown = (event) => {
 		const canvasPos = getMousePos(event.target, event);
 		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+		console.log(event.target.className);
+		if (event.target.className.includes("setup-board")) {
+			console.log(step);
+			step === 1 && startDrawingBlock(x, y);
+			step === 2 && setMarkedBlock(strXY(x, y));
+		} else if (event.target.className.includes("win-board") && step === 2) {
+			setMovingWinBlock(true);
+			dispatch(placeWinBlock({ x, y }));
+		}
+		console.log(drawingBlock);
+	};
+
+	const track = (event) => {
+		const canvasPos = getMousePos(event.target, event);
+		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+    console.log(drawingBlock)
 		if (drawingBlock) {
 			if (x < 0 || x >= rows || y < 0 || y >= cols) {
 				return;
@@ -229,48 +219,58 @@ function CustomGame() {
 		}
 	};
 
-	const handleMouseUp = useCallback(
-		(event) => {
-			setDrawingBlock(false);
-			setMovingWinBlock(false);
-			if (drawingBlock) {
-				dispatch(addBlock(newBlock));
+	const handleUp = (event) => {
+		setDrawingBlock(false);
+		setMovingWinBlock(false);
+    console.log(drawingBlock)
+		if (drawingBlock) {
+			dispatch(addBlock(newBlock));
+		}
+		if (markedBlock) {
+			const canvasPos = getMousePos(event.target, event);
+			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+			if (markedBlock !== strXY(x, y)) {
+				return;
 			}
-			if (markedBlock) {
-				const canvasPos = getMousePos(event.target, event);
-				const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-				if (markedBlock !== strXY(x, y)) {
-					return;
-				}
-				step === 1 &&
-					dispatch(removeBlock(coordsToBlocks[markedBlock]));
-				step === 2 && makeWinBoard(coordsToBlocks[markedBlock]);
-			}
+			step === 1 && dispatch(removeBlock(coordsToBlocks[markedBlock]));
+			step === 2 && makeWinBoard(coordsToBlocks[markedBlock]);
+		}
 
-			setMarkedBlock(null);
-		},
-		// eslint-disable-next-line
-		[drawingBlock, dispatch, newBlock, markedBlock, coordsToBlocks, step]
-	);
+		setMarkedBlock(null);
+	};
+
+	const handleDownRef = useRef(handleDown);
+	const trackRef = useRef(track);
+	const handleUpRef = useRef(handleUp);
 
 	useEffect(() => {
-		document.addEventListener("mousedown", handleMouseDown);
-		document.addEventListener("touchstart", handleMouseDown, false);
-    
-		document.addEventListener("mouseup", handleMouseUp);
-		document.addEventListener("touchend", handleMouseUp, false);
+		canvas.current = document.getElementById("playBoard");
 
-    document.addEventListener("touchmove", trackMouseOnBoard, false);
+		canvas.current.addEventListener("mousedown", handleDownRef.current);
+		canvas.current.addEventListener("touchstart", handleDownRef.current, {
+			passive: true,
+		});
+		canvas.current.addEventListener("mousemove", trackRef.current);
+		canvas.current.addEventListener("touchmove", trackRef.current, {
+			passive: true,
+		});
+		canvas.current.addEventListener("touchend", handleUpRef.current);
+		canvas.current.addEventListener("mouseup", handleUpRef.current);
 		return () => {
-			document.removeEventListener("mousedown", handleMouseDown);
-			document.removeEventListener("touchstart", handleMouseDown, false);
-			document.removeEventListener("mouseup", handleMouseUp);
-			document.removeEventListener("touchend", handleMouseUp, false);
-      
-			document.removeEventListener("touchmove", trackMouseOnBoard, false);
+			canvas.current.removeEventListener(
+				"mousedown",
+				handleDownRef.current
+			);
+			canvas.current.removeEventListener("mouseup", handleUpRef.current);
+			canvas.current.removeEventListener("mousemove", trackRef.current);
+			canvas.current.removeEventListener(
+				"touchstart",
+				handleDownRef.current
+			);
+			canvas.current.removeEventListener("touchend", handleUpRef.current);
+			canvas.current.removeEventListener("touchmove", trackRef.current);
 		};
-    // eslint-disable-next-line
-	}, [handleMouseDown, handleMouseUp]);
+	}, []);
 
 	const menuStepZero = (
 		<div className="step zero">
@@ -341,22 +341,26 @@ function CustomGame() {
 
 	return (
 		<div className="boards-container">
-			<p> Custom Game Page </p>
+			{/* <BoardsDisplay
+				blocks={step === 0 ? [blockSample] : showBlocks}
+				game={game}
+				type="create"
+			/> */}
 			<BoardCanvas
 				rows={rows}
 				cols={cols}
 				blocks={step === 0 ? [blockSample] : showBlocks}
-				onMouseMove={trackMouseOnBoard}
+				onMouseMove={track}
 				className="setup-board"
 				id="playBoard"
 			/>
-
+			&nbsp;
 			{/* {(step === 2) | (step === 3) ? ( */}
 			<BoardCanvas
 				rows={rows}
 				cols={cols}
 				blocks={[winBlock]}
-				onMouseMove={trackMouseOnBoard}
+				onMouseMove={track}
 				className="win-board"
 				id="winBoard"
 			/>
@@ -367,7 +371,6 @@ function CustomGame() {
 				{step === 2 && menuStepTwo}
 				{step === 3 && menuStepThree}
 			</div>
-
 			<div className="menu prev-next">
 				<br />
 				<br />

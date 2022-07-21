@@ -23,10 +23,10 @@ export const customGameSlice = createSlice({
 	initialState,
 	reducers: {
 		changeCols: (state, action) => {
-			state.cols = action.payload;
+			state.cols = action.payload < 1 ? 1 : action.payload > 10 ? 10 : action.payload;
 		},
 		changeRows: (state, action) => {
-			state.rows = action.payload;
+			state.rows = action.payload < 1 ? 1 : action.payload > 10 ? 10 : action.payload;
 		},
 		prevStep: (state) => {
 			state.step -= 1;
@@ -122,3 +122,4 @@ export const removeLast = () => (dispatch, getState) => {
 };
 
 export default customGameSlice.reducer;
+

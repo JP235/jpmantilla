@@ -2,13 +2,12 @@ import React from "react";
 
 import "./playGame.css";
 
-import { useEffect, useCallback, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 
 import { createGame, getGame, saveGame } from "../../api/game/gameAPI";
 import { selectGameStatus } from "../../api/game/gameAPISlice";
-import { getCanvasImageURI } from "../../common/canvas/getCanvasImage";
 
 import {
 	undoMove,
@@ -17,9 +16,6 @@ import {
 	selectBlocks,
 	selectPastMoves,
 	selectFutureMoves,
-	selectNumberOfMoves,
-	selectCols,
-	selectRows,
 	selectSolved,
 	startMovingBlock,
 	stopMovingBlock,
@@ -36,12 +32,9 @@ function PlayGame() {
 	const params = useParams();
 
 	const game = useSelector(selectGame);
-	const moves = useSelector(selectNumberOfMoves);
 	const solved = useSelector(selectSolved);
 	const status = useSelector(selectGameStatus);
 
-	const cols = useSelector(selectCols);
-	const rows = useSelector(selectRows);
 	const blocks = useSelector(selectBlocks);
 	const pastMoves = useSelector(selectPastMoves);
 	const futureMoves = useSelector(selectFutureMoves);
@@ -52,95 +45,80 @@ function PlayGame() {
 		dispatch(getGame(params.gameCode));
 	}, [dispatch, params.gameCode]);
 
-	const startMove = useCallback(
-		(event) => {
-			// console.log("startMove");
-			const canvasPos = getMousePosCanvas(event.target, event);
-			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-			dispatch(startMovingBlock({ x, y }));
-		},
-		[dispatch]
-	);
+	const handleDown = (event) => {
+		// console.log("startMove");
+		const canvasPos = getMousePosCanvas(event.target, event);
+		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+		dispatch(startMovingBlock({ x, y }));
+	};
 
-	const track = useCallback(
-		(event) => {
-			// console.log("track");
-			const canvasPos = getMousePosCanvas(event.target, event);
-			const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
-			dispatch(trackMove(x, y));
-		},
-		[dispatch]
-	);
+	const track = (event) => {
+		// console.log("track");
+		const canvasPos = getMousePosCanvas(event.target, event);
+		const [x, y] = posToCoord(canvasPos.x, canvasPos.y);
+		dispatch(trackMove(x, y));
+	};
 
-	const endMove = useCallback(
-		(event) => {
-			event.preventDefault();
-			// console.log("endMove");
-			dispatch(stopMovingBlock());
-		},
-		[dispatch]
-	);
+	const handleUp = (event) => {
+		event.preventDefault();
+		// console.log("endMove");
+		dispatch(stopMovingBlock());
+	};
 
-	const startMoveRef = useRef(startMove);
-	startMoveRef.current = startMove;
-	const makeMoveRef = useRef(track);
-	makeMoveRef.current = track;
-	const endMoveRef = useRef(endMove);
-	endMoveRef.current = endMove;
+	const handleDownRef = useRef(handleDown);
+	const trackRef = useRef(track);
+	const handleUpRef = useRef(handleUp);
 
 	useEffect(() => {
 		if (solved) {
-			startMoveRef.current = null;
-			endMoveRef.current = null;
-			makeMoveRef.current = null;
+			handleDownRef.current = null;
+			handleUpRef.current = null;
+			trackRef.current = null;
+			console.log("solved");
 		}
-		console.log("solved");
 	}, [solved]);
 
 	useEffect(() => {
 		if (status === "game loaded") {
+			console.log("game loaded");
 			canvas.current = document.getElementById("playBoard");
-			canvas.current.addEventListener("mousedown", startMoveRef.current);
+
+			canvas.current.addEventListener("mousedown", handleDownRef.current);
 			canvas.current.addEventListener(
 				"touchstart",
-				startMoveRef.current,
+				handleDownRef.current,
 				{ passive: true }
 			);
-			canvas.current.addEventListener("mousemove", makeMoveRef.current);
-			canvas.current.addEventListener("touchmove", makeMoveRef.current, {
+			canvas.current.addEventListener("mousemove", trackRef.current);
+			canvas.current.addEventListener("touchmove", trackRef.current, {
 				passive: true,
 			});
-			canvas.current.addEventListener("touchend", endMoveRef.current);
-			canvas.current.addEventListener("mouseup", endMoveRef.current);
-			canvas.current.addEventListener("mouseleave", endMoveRef.current);
+			canvas.current.addEventListener("touchend", handleUpRef.current);
+			canvas.current.addEventListener("mouseup", handleUpRef.current);
 			return () => {
 				canvas.current.removeEventListener(
 					"mousedown",
-					startMoveRef.current
+					handleDownRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchstart",
-					startMoveRef.current
+					handleDownRef.current
 				);
 				canvas.current.removeEventListener(
 					"mouseup",
-					endMoveRef.current
+					handleUpRef.current
 				);
 				canvas.current.removeEventListener(
 					"mousemove",
-					makeMoveRef.current
-				);
-				canvas.current.removeEventListener(
-					"mouseleave",
-					endMoveRef.current
+					trackRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchend",
-					endMoveRef.current
+					handleUpRef.current
 				);
 				canvas.current.removeEventListener(
 					"touchmove",
-					makeMoveRef.current
+					trackRef.current
 				);
 			};
 		}
@@ -149,7 +127,7 @@ function PlayGame() {
 	return (
 		<>
 			<div className="boards-container">
-				<BoardsDisplay blocks={blocks} game={game} type="play"/>
+				<BoardsDisplay blocks={blocks} game={game} type="play" />
 
 				<div className="game-buttons-container">
 					<button
@@ -175,17 +153,9 @@ function PlayGame() {
 						className="btn-menu save"
 						type="button"
 						onClick={() => {
-							const gameToSave = {
-								...game,
-								number_of_moves: moves,
-								img_curr: getCanvasImageURI("playBoard"),
-								img_win: getCanvasImageURI("winBoard"),
-							};
 							OPENCODES.includes(params.gameCode)
-								? dispatch(createGame(gameToSave, blocks))
-								: dispatch(
-										saveGame(gameToSave, blocks, pastMoves)
-								  );
+								? dispatch(createGame(game, blocks))
+								: dispatch(saveGame(game, blocks, pastMoves));
 						}}
 					>
 						Save Game
