@@ -17,6 +17,7 @@ import {
 	changeCols,
 	changeRows,
 	handleDownPlayBoard,
+	trackMove,
 	handleEnd,
 	changeNewBlock,
 	startDrawing,
@@ -58,11 +59,11 @@ function CustomGame() {
 	const markedBlock = useSelector(selectMarkedBlock);
 
 	const shownBlocks = useSelector((state) => state.customGame.shownBlocks);
-	
-  const [blockX0, setBlockX0] = useState();
-  const [blockY0, setBlockY0] = useState();
+
+	const blockX0 = useSelector((state) => state.customGame.blockX0);
+	const blockY0 = useSelector((state) => state.customGame.blockY0);
+
   
-	const [newBlock, setNewBlock] = useState(null);
 	const [nameShift, setNameShift] = useState([]);
 	const [noNameShift, setNoNameShift] = useState([]);
 	const [blockH, setBlockH] = useState();
@@ -75,7 +76,7 @@ function CustomGame() {
 	const prevStepActions = () => {
 		switch (step) {
 			case 1:
-				setNewBlock(null);
+				// setNewBlock(null);
 				setBlockH(0);
 				break;
 			case 2:
@@ -134,43 +135,36 @@ function CustomGame() {
 	// }, [blocks]);
 
 	// Set newBlock when x,y,h,l change
-	useEffect(() => {
-    console.log("x,y,h,l change");
-    if (blockH > 0 && blockW > 0) {
-      console.log("blockH > 0 && blockW > 0");
-			const nb = {
-				name: blockName.toString().padStart(2, "0"),
-				x: blockX,
-				y: blockY,
-				h: blockH,
-				l: blockW,
-			};
-			// check if block is in free spaces
-			if (
-				!takenCoords.some((coord) =>
-					calcBlockCoords(nb).includes(coord)
-				)
-			) {
-        console.log(blockX, blockY, blockH, blockW)
-				dispatch(changeNewBlock({blockX, blockY, blockH, blockW}));
-			} else{
-        console.log("block is taken");
-      }
-		}
-	}, [takenCoords, blocks, blockName, blockH, blockW, blockX, blockY]);
+	// useEffect(() => {
+	// 	console.log("x,y,h,l change");
+	// 	if (blockH > 0 && blockW > 0) {
+	// 		const nb = {
+	// 			name: blockName.toString().padStart(2, "0"),
+	// 			x: blockX,
+	// 			y: blockY,
+	// 			h: blockH,
+	// 			l: blockW,
+	// 		};
+	// 		// check if block is in free spaces
+	// 		if (
+	// 			!takenCoords.some((coord) =>
+	// 				calcBlockCoords(nb).includes(coord)
+	// 			)
+	// 		) {
+	// 			console.log(blockX, blockY, blockH, blockW);
+	// 			dispatch(changeNewBlock({ blockX, blockY, blockH, blockW }));
+	// 		} else {
+	// 			console.log("block is taken");
+	// 		}
+	// 	} // eslint-disable-next-line
+	// }, [blockX0, blockY0, blockX, blockY]);
 
 	const handleStart = (event) => {
 		const [x, y] = getPointCoords(event.target, event);
 		if (event.target.className.includes("setup-board")) {
-			dispatch(handleDownPlayBoard({ x, y }));	
-      console.log(step)
-      setBlockH(1);
-      setBlockW(1);
-      setBlockX(x);
-      setBlockY(y);
-      setBlockX0(x);
-      setBlockY0(y);
-      
+			dispatch(handleDownPlayBoard({ x, y }));
+
+			console.log("start");
 		} else if (event.target.className.includes("win-board")) {
 			dispatch(startMovingWinBlock({ x, y }));
 		}
@@ -179,25 +173,24 @@ function CustomGame() {
 	const track = (event) => {
 		const [x, y] = getPointCoords(event.target, event);
 		if (event.type === "mousemove" && !drawingBlock) return;
-
-		if (x < 0 || x >= rows || y < 0 || y >= cols) {
-			return;
-		}
-		if (x <= blockX0) {
-      setBlockX(x);
-			setBlockH(blockX0 - x + 1);
-		} else {
-      setBlockX(blockX0);
-			setBlockH(x - blockX0 + 1);
-		}
-		if (y <= blockY0) {
-      setBlockY(y);
-			setBlockW(blockY0 - y + 1);
-		} else {
-      setBlockY(blockY0);
-			setBlockW(y - blockY0 + 1);
-		}
-    console.log(x, y);
+		dispatch(trackMove({ x, y }));
+		// if (x < 0 || x >= rows || y < 0 || y >= cols) {
+		// 	return;
+		// }
+		// if (x <= blockX0) {
+		// 	setBlockX(x);
+		// 	setBlockH(blockX0 - x + 1);
+		// } else {
+		// 	setBlockX(blockX0);
+		// 	setBlockH(x - blockX0 + 1);
+		// }
+		// if (y <= blockY0) {
+		// 	setBlockY(y);
+		// 	setBlockW(blockY0 - y + 1);
+		// } else {
+		// 	setBlockY(blockY0);
+		// 	setBlockW(y - blockY0 + 1);
+		// }
 		// // setshowBlocks([...blocks, newBlock]);
 		// }
 		// else if (movingWinBlock) {
