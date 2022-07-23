@@ -131,41 +131,45 @@ function PlayGame() {
 
 	return (
 		<>
-			<div className="boards-container">
-				<BoardsDisplay blocks={blocks} game={game} winBlock={winBlock} type="play" />
-
-				<div className="game-buttons-container">
-					<button
-						className="btn-menu undo"
-						type="button"
-						disabled={
-							!pastMoves || pastMoves.length === 0 ? true : false
-						}
-						onClick={() => dispatch(undoMove())}
-					>
-						Undo
-					</button>
-					{"  "}
-					<button
-						className="btn-menu redo"
-						type="button"
-						disabled={futureMoves.length > 0 ? false : true}
-						onClick={() => dispatch(redoMove())}
-					>
-						Redo
-					</button>
-					<button
-						className="btn-menu save"
-						type="button"
-						onClick={() => {
-							OPENCODES.includes(params.gameCode)
-								? dispatch(createGame(game, blocks))
-								: dispatch(saveGame(game, blocks, pastMoves));
-						}}
-					>
-						Save Game
-					</button>
-				</div>
+			<div className="container-play">
+				<BoardsDisplay
+					blocks={blocks}
+					game={game}
+					winBlock={winBlock}
+					type="play"
+				/>
+			</div>
+			<div className="buttons-play">
+				<button
+					className="btn-menu undo"
+					type="button"
+					disabled={
+						!pastMoves || pastMoves.length === 0 ? true : false
+					}
+					onClick={() => dispatch(undoMove())}
+				>
+					Undo
+				</button>
+				&nbsp;
+				<button
+					className="btn-menu redo"
+					type="button"
+					disabled={futureMoves.length > 0 ? false : true}
+					onClick={() => dispatch(redoMove())}
+				>
+					Redo
+				</button>
+				<button
+					className="btn-menu save"
+					type="button"
+					onClick={() => {
+						OPENCODES.includes(params.gameCode)
+							? dispatch(createGame(game, blocks))
+							: dispatch(saveGame(game, blocks, pastMoves));
+					}}
+				>
+					Save Game
+				</button>
 			</div>
 		</>
 	);

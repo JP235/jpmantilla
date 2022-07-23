@@ -26,6 +26,8 @@ body {
 
 .Content {
 	margin-top: 10px;
+    grid: auto / auto auto;
+    justify-content: center;
 }
 
 .login-status {
@@ -47,3 +49,4 @@ body {
 .game-info {
 	margin-left: 20px;
 }
+

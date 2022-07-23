@@ -8,6 +8,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { blockSample } from "../../common/canvas/constants";
 import { getPointCoords } from "../../common/canvas/getFromCanvas";
 import BoardsDisplay from "../../common/canvas/BoardsDisplay";
+import UpDownControl from "../../common/up-down";
 
 import {
 	prevStep,
@@ -18,6 +19,7 @@ import {
 	trackMove,
 	handleEnd,
 	placeWinBlock,
+	removeLast,
 	selectStep,
 	selectCols,
 	selectRows,
@@ -28,8 +30,8 @@ import { createGame } from "../../api/game/gameAPI";
 
 function CustomGame() {
 	const dispatch = useDispatch();
-  
-  const game = useSelector((state) => state.customGame.game);
+
+	const game = useSelector((state) => state.customGame.game);
 	const shownBlocks = useSelector((state) => state.customGame.shownBlocks);
 
 	const step = useSelector(selectStep);
@@ -38,6 +40,7 @@ function CustomGame() {
 	const blocks = useSelector(selectBlocks);
 
 	const winBlock = useSelector(selectWinBlock);
+	const blockName = useSelector((state) => state.customGame.currentBlockName);
 
 	const [nameShift, setNameShift] = useState([]);
 	const [noNameShift, setNoNameShift] = useState([]);
@@ -104,10 +107,9 @@ function CustomGame() {
 		setNoNameShift(notShiftedNames);
 	};
 
-
 	const handleStart = (event) => {
-    const [x, y] = getPointCoords(event.target, event);
-    dispatch(handleDownPlayBoard({ x, y }));
+		const [x, y] = getPointCoords(event.target, event);
+		dispatch(handleDownPlayBoard({ x, y }));
 		// if (event.target.className.includes("setup-board")) {
 
 		// } else if (event.target.className.includes("win-board")) {
@@ -118,11 +120,10 @@ function CustomGame() {
 	const track = (event) => {
 		const [x, y] = getPointCoords(event.target, event);
 		dispatch(trackMove({ x, y }));
-
 	};
 
 	const handleUp = (event) => {
-    event.preventDefault()
+		event.preventDefault();
 		dispatch(handleEnd());
 		// dispatch(stopDrawing())
 		// dispatch(stopMovingWinBlock());
@@ -144,7 +145,67 @@ function CustomGame() {
 
 		// dispatch(markBlock(null));
 	};
-
+	const menuStepZero = (
+		<div className="step-zero">
+			<div className="cols-control">
+				<UpDownControl
+					name="cols"
+					value={cols}
+					onUp={() => dispatch(changeCols(cols + 1))}
+					onDown={() => dispatch(changeCols(cols - 1))}
+				/>
+			</div>
+			<div className="rows-control">
+				<UpDownControl
+					name="rows"
+					value={rows}
+					onUp={() => dispatch(changeRows(rows + 1))}
+					onDown={() => dispatch(changeRows(rows - 1))}
+				/>
+			</div>
+		</div>
+	);
+	const menuStepOne = (
+		<input
+			id="undo"
+			type="button"
+			className="btn-menu step-one"
+			onClick={() => dispatch(removeLast())}
+			value="Delete Last Block"
+			disabled={blockName === 1 ? true : false}
+		/>
+	);
+	const menuStepTwo = (
+		<div className="step two">
+			<label>Pick Win-Block: </label>
+			<select
+				id="Win-Block"
+				onChange={(e) => makeWinBoard(e.target.value)}
+			>
+				{blocks.map((bl) => (
+					<option key={bl.name}>{bl.name}</option>
+				))}
+			</select>
+		</div>
+	);
+	const menuStepThree = (
+		<div className="step three">
+			<button
+				key={"save button"}
+				onClick={() => {
+					const game = {
+						cols: cols,
+						rows: rows,
+						win_block_x: winBlock.x,
+						win_block_y: winBlock.y,
+					};
+					dispatch(createGame(game, nameShift));
+				}}
+			>
+				SAVE GAME
+			</button>
+		</div>
+	);
 	const handleDownRef = useRef(handleStart);
 	const trackRef = useRef(track);
 	const handleUpRef = useRef(handleUp);
@@ -162,7 +223,7 @@ function CustomGame() {
 		});
 		canvas.current.addEventListener("touchend", handleUpRef.current);
 		canvas.current.addEventListener("mouseup", handleUpRef.current);
-    
+
 		return () => {
 			canvas.current.removeEventListener(
 				"mousedown",
@@ -180,51 +241,19 @@ function CustomGame() {
 	}, []);
 
 	return (
-		<div className="boards-container">
-			<BoardsDisplay
-				blocks={step === 0 ? [blockSample] : shownBlocks}
-				game={game}
-        winBlock={winBlock}
-				type="create"
-			/>
-			<br />
-			{/* {drawingBlock && "drawing-block"} */}
-			{/* <BoardCanvas
-				rows={rows}
-				cols={cols}
-				blocks={step === 0 ? [blockSample] : shownBlocks}
-				onMouseMove={track}
-				className="setup-board"
-				id="playBoard"
-			/>
-			&nbsp; */}
-			{/* <BoardCanvas
-				rows={rows}
-				cols={cols}
-				blocks={[winBlock]}
-				onMouseMove={track}
-				className="win-board"
-				id="winBoard"
-			/> */}
-			{/* ) : null} */}
-			<div className="menu step-actions">
-				{/* {step === 0 && menuStepZero}
-				{step === 1 && menuStepOne}
-				{step === 2 && menuStepTwo}
-				{step === 3 && menuStepThree} */}
-			</div>
-			<div className="menu prev-next">
-				<br />
-				<br />
+		<>
+			<div className="buttons-prev-next">
 				<button
+					className="btn-menu step-control"
 					type="button"
 					onClick={() => prevStepActions()}
 					disabled={step === 0 ? true : false}
 				>
-					{" "}
-					Prev{" "}
+					Prev
 				</button>
+				&nbsp;
 				<button
+					className="btn-menu step-control"
 					type="button"
 					onClick={() => nextStepActions()}
 					disabled={
@@ -233,11 +262,24 @@ function CustomGame() {
 							: false
 					}
 				>
-					{" "}
-					Next{" "}
+					Next
 				</button>
 			</div>
-		</div>
+			<div className="container-create">
+				<BoardsDisplay
+					blocks={step === 0 ? [blockSample] : shownBlocks}
+					game={game}
+					winBlock={winBlock}
+					type="create"
+				/>
+			</div>
+			<div className="step-menu">
+				{step === 0 && menuStepZero}
+				{step === 1 && menuStepOne}
+				{step === 2 && menuStepTwo}
+				{step === 3 && menuStepThree}
+			</div>
+		</>
 	);
 }
 

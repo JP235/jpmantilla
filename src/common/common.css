@@ -1,0 +1,29 @@
+.up-down-control{
+    display: grid;
+    width: 4em;
+    height: 8em;
+    /* justify-content: center; */
+}
+.updown-name{
+    grid-row: 1;
+    margin: auto;
+    text-transform: uppercase;
+}
+.updown-value{
+    /* margin: auto; */
+    grid-row: 3;
+    width: 2em;
+    
+}
+.up-arrow{
+    /* margin: auto; */
+    grid-row: 2;
+    align-content: center;
+    width: 3em;
+}
+.down-arrow{
+    /* margin: auto; */
+    width: 3em;
+
+}
+

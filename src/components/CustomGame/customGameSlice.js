@@ -16,7 +16,7 @@ const initialState = {
 
 	blocks: [],
 
-	step: 1,
+	step: 0,
 	currentBlockName: 1,
 	shownBlocks: [],
 
@@ -216,6 +216,7 @@ export const {
 	markBlock,
 	addBlock,
 	removeBlock,
+  removeLast,
 	placeWinBlock,
 } = customGameSlice.actions;
 

@@ -1,21 +1,40 @@
-.menu {
-	width: 20%;
-	left: 30px;
+.buttons-prev-next {
+	margin: auto;
+	margin-bottom: 10px;
+	width: 10em;
+	/* outline: dashed 1px black; */
 }
+.step-control {
+	width: 5.1em;
+	height: 2em;
+}
+.container-create {
+	min-height: 300px;
+	margin: auto;
+	display: flex;
+	justify-content: center;
+	/* outline: dashed 1px black; */
+}
+.step-menu {
+	grid-row: 3;
+    margin: auto;
+    margin-top: 1em;
+    width: 10em;
+    justify-content: center;
 
-.step-actions{
-    top: 150%;
 }
-.prev-next{
-    position: absolute;
-    bottom: 0%
+.step-zero{
+    margin: auto;
+    display: flex;
+ }
+.cols-control{
+    grid-column: 1;
 }
-.step {
-    position: absolute;
-    width: 20%;
-	top: 100px;
+.rows-control{
+    grid-column: 2;
 }
-
-input[type='number']{
-    width: 30px;
-} 
+.step-one{
+    margin: auto;
+    width: 10em;
+    height: 3em;
+}
