@@ -35,6 +35,12 @@ function PlayGame() {
 	const status = useSelector(selectGameStatus);
 
 	const blocks = useSelector(selectBlocks);
+	const winBlock = {
+		...blocks.find((bl) => bl.name === "GG"),
+		x: game.win_block_x,
+		y: game.win_block_y,
+		color: "#c0ca33",
+	};
 	const pastMoves = useSelector(selectPastMoves);
 	const futureMoves = useSelector(selectFutureMoves);
 
@@ -46,14 +52,14 @@ function PlayGame() {
 
 	const handleDown = (event) => {
 		// console.log("startMove");
-    const [x, y] = getPointCoords(event.target, event);
+		const [x, y] = getPointCoords(event.target, event);
 
 		dispatch(startMovingBlock({ x, y }));
 	};
 
 	const track = (event) => {
 		// console.log("track");
-    const [x, y] = getPointCoords(event.target, event);
+		const [x, y] = getPointCoords(event.target, event);
 
 		dispatch(trackMove(x, y));
 	};
@@ -126,7 +132,7 @@ function PlayGame() {
 	return (
 		<>
 			<div className="boards-container">
-				<BoardsDisplay blocks={blocks} game={game} type="play" />
+				<BoardsDisplay blocks={blocks} game={game} winBlock={winBlock} type="play" />
 
 				<div className="game-buttons-container">
 					<button
