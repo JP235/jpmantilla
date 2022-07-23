@@ -2,14 +2,12 @@ import React from "react";
 
 import "./CustomGame.css";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { blockSample } from "../../common/canvas/constants";
-import { calcBlockCoords, strXY } from "../../common/utils/TupOpps";
 import { getPointCoords } from "../../common/canvas/getFromCanvas";
-import BoardCanvas from "../../common/canvas/BoardCanvas";
-// import BoardsDisplay from "../../common/canvas/BoardsDisplay";
+import BoardsDisplay from "../../common/canvas/BoardsDisplay";
 
 import {
 	prevStep,
@@ -19,23 +17,10 @@ import {
 	handleDownPlayBoard,
 	trackMove,
 	handleEnd,
-	changeNewBlock,
-	startDrawing,
-	stopDrawing,
-	startMovingWinBlock,
-	markBlock,
-	addBlock,
-	removeBlock,
 	placeWinBlock,
 	selectStep,
 	selectCols,
 	selectRows,
-	selectBlockName,
-	selectTakenCoords,
-	selectCoordsToBlocks,
-	selectDrawingBlock,
-	selectMovingWinBlock,
-	selectMarkedBlock,
 	selectBlocks,
 	selectWinBlock,
 } from "./customGameSlice";
@@ -43,27 +28,17 @@ import { createGame } from "../../api/game/gameAPI";
 
 function CustomGame() {
 	const dispatch = useDispatch();
+  
+  const game = useSelector((state) => state.customGame.game);
+	const shownBlocks = useSelector((state) => state.customGame.shownBlocks);
 
 	const step = useSelector(selectStep);
 	const cols = useSelector(selectCols);
 	const rows = useSelector(selectRows);
-	const blockName = useSelector(selectBlockName);
 	const blocks = useSelector(selectBlocks);
-	const coordsToBlocks = useSelector(selectCoordsToBlocks);
 
-	const takenCoords = useSelector(selectTakenCoords);
 	const winBlock = useSelector(selectWinBlock);
 
-	const drawingBlock = useSelector(selectDrawingBlock);
-	const movingWinBlock = useSelector(selectMovingWinBlock);
-	const markedBlock = useSelector(selectMarkedBlock);
-
-	const shownBlocks = useSelector((state) => state.customGame.shownBlocks);
-
-	const blockX0 = useSelector((state) => state.customGame.blockX0);
-	const blockY0 = useSelector((state) => state.customGame.blockY0);
-
-  
 	const [nameShift, setNameShift] = useState([]);
 	const [noNameShift, setNoNameShift] = useState([]);
 	const [blockH, setBlockH] = useState();
@@ -127,80 +102,27 @@ function CustomGame() {
 		}
 		setNameShift(shiftedNames);
 		setNoNameShift(notShiftedNames);
-		// setshowBlocks(notShiftedNames);
 	};
 
-	// useEffect(() => {
-	// 	setshowBlocks(blocks);
-	// }, [blocks]);
-
-	// Set newBlock when x,y,h,l change
-	// useEffect(() => {
-	// 	console.log("x,y,h,l change");
-	// 	if (blockH > 0 && blockW > 0) {
-	// 		const nb = {
-	// 			name: blockName.toString().padStart(2, "0"),
-	// 			x: blockX,
-	// 			y: blockY,
-	// 			h: blockH,
-	// 			l: blockW,
-	// 		};
-	// 		// check if block is in free spaces
-	// 		if (
-	// 			!takenCoords.some((coord) =>
-	// 				calcBlockCoords(nb).includes(coord)
-	// 			)
-	// 		) {
-	// 			console.log(blockX, blockY, blockH, blockW);
-	// 			dispatch(changeNewBlock({ blockX, blockY, blockH, blockW }));
-	// 		} else {
-	// 			console.log("block is taken");
-	// 		}
-	// 	} // eslint-disable-next-line
-	// }, [blockX0, blockY0, blockX, blockY]);
 
 	const handleStart = (event) => {
-		const [x, y] = getPointCoords(event.target, event);
-		if (event.target.className.includes("setup-board")) {
-			dispatch(handleDownPlayBoard({ x, y }));
+    const [x, y] = getPointCoords(event.target, event);
+    dispatch(handleDownPlayBoard({ x, y }));
+		// if (event.target.className.includes("setup-board")) {
 
-			console.log("start");
-		} else if (event.target.className.includes("win-board")) {
-			dispatch(startMovingWinBlock({ x, y }));
-		}
+		// } else if (event.target.className.includes("win-board")) {
+		// 	// dispatch(startMovingWinBlock({ x, y }));
+		// }
 	};
 
 	const track = (event) => {
 		const [x, y] = getPointCoords(event.target, event);
-		if (event.type === "mousemove" && !drawingBlock) return;
 		dispatch(trackMove({ x, y }));
-		// if (x < 0 || x >= rows || y < 0 || y >= cols) {
-		// 	return;
-		// }
-		// if (x <= blockX0) {
-		// 	setBlockX(x);
-		// 	setBlockH(blockX0 - x + 1);
-		// } else {
-		// 	setBlockX(blockX0);
-		// 	setBlockH(x - blockX0 + 1);
-		// }
-		// if (y <= blockY0) {
-		// 	setBlockY(y);
-		// 	setBlockW(blockY0 - y + 1);
-		// } else {
-		// 	setBlockY(blockY0);
-		// 	setBlockW(y - blockY0 + 1);
-		// }
-		// // setshowBlocks([...blocks, newBlock]);
-		// }
-		// else if (movingWinBlock) {
-		// 	if (winBlock.x !== x || winBlock.y !== y) {
-		// 		dispatch(placeWinBlock({ x, y }));
-		// 	}
-		// }
+
 	};
 
 	const handleUp = (event) => {
+    event.preventDefault()
 		dispatch(handleEnd());
 		// dispatch(stopDrawing())
 		// dispatch(stopMovingWinBlock());
@@ -240,6 +162,7 @@ function CustomGame() {
 		});
 		canvas.current.addEventListener("touchend", handleUpRef.current);
 		canvas.current.addEventListener("mouseup", handleUpRef.current);
+    
 		return () => {
 			canvas.current.removeEventListener(
 				"mousedown",
@@ -256,86 +179,17 @@ function CustomGame() {
 		};
 	}, []);
 
-	// const menuStepZero = (
-	// 	<div className="step zero">
-	// 		<label>Rows </label>
-	// 		<input
-	// 			value={rows}
-	// 			id="rows"
-	// 			type="number"
-	// 			min="2"
-	// 			max="10"
-	// 			onChange={(e) => dispatch(changeRows(e.target.value))}
-	// 		/>
-	// 		<label> Cols </label>
-	// 		<input
-	// 			value={cols}
-	// 			id="cols"
-	// 			type="number"
-	// 			min="2"
-	// 			max="10"
-	// 			onChange={(e) => dispatch(changeCols(e.target.value))}
-	// 		/>
-	// 	</div>
-	// );
-	// const menuStepOne = (
-	// 	<div className="step one">
-	// 		<input
-	// 			id="undo"
-	// 			type="button"
-	// 			onClick={() => dispatch(removeLast())}
-	// 			value="Delete Last Block"
-	// 			disabled={blockName === 1 ? true : false}
-	// 		/>
-	// 	</div>
-	// );
-	// const menuStepTwo = (
-	// 	<div className="step two">
-	// 		<label>Pick Win-Block: </label>
-	// 		<select
-	// 			id="Win-Block"
-	// 			onChange={(e) => makeWinBoard(e.target.value)}
-	// 		>
-	// 			{blocks.map((bl) => (
-	// 				<option key={bl.name}>{bl.name}</option>
-	// 			))}
-	// 		</select>
-	// 	</div>
-	// );
-	// const menuStepThree = (
-	// 	<div className="step three">
-	// 		<button
-	// 			key={"save button"}
-	// 			onClick={() => {
-	// 				const game = {
-	// 					cols: cols,
-	// 					rows: rows,
-	// 					img_curr: getCanvasImageURI("playBoard"),
-	// 					img_win: getCanvasImageURI("winBoard"),
-	// 					win_block_x: winBlock.x,
-	// 					win_block_y: winBlock.y,
-	// 				};
-	// 				dispatch(createGame(game, nameShift));
-	// 			}}
-	// 		>
-	// 			SAVE GAME
-	// 		</button>
-	// 	</div>
-	// );
-
 	return (
 		<div className="boards-container">
-			{/* <BoardsDisplay
-				blocks={step === 0 ? [blockSample] : showBlocks}
+			<BoardsDisplay
+				blocks={step === 0 ? [blockSample] : shownBlocks}
 				game={game}
+        winBlock={winBlock}
 				type="create"
-			/> */}
-			<div>
-				{blockX0} - {blockY0}
-			</div>
+			/>
 			<br />
 			{/* {drawingBlock && "drawing-block"} */}
-			<BoardCanvas
+			{/* <BoardCanvas
 				rows={rows}
 				cols={cols}
 				blocks={step === 0 ? [blockSample] : shownBlocks}
@@ -343,16 +197,15 @@ function CustomGame() {
 				className="setup-board"
 				id="playBoard"
 			/>
-			&nbsp;
-			{/* {(step === 2) | (step === 3) ? ( */}
-			<BoardCanvas
+			&nbsp; */}
+			{/* <BoardCanvas
 				rows={rows}
 				cols={cols}
 				blocks={[winBlock]}
 				onMouseMove={track}
 				className="win-board"
 				id="winBoard"
-			/>
+			/> */}
 			{/* ) : null} */}
 			<div className="menu step-actions">
 				{/* {step === 0 && menuStepZero}

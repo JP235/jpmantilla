@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 import {
 	calcBoardCoords,
+	calcBlockCoords,
 	calcCoordsToBlocks,
 	strXY,
 } from "../../common/utils/TupOpps";
@@ -19,15 +20,19 @@ const initialState = {
 	currentBlockName: 1,
 	shownBlocks: [],
 
-	winBlock: null,
+	winBlock: {},
 
 	X0: null,
 	Y0: null,
+  // there is no touches array in event touchend
+  Xcurr: null,
+  Ycurr: null,
 
 	takenCoords: [],
 	coordsToBlocks: {},
-	drawingBlock: false,
-	movingWinBlock: false,
+
+	operation: null,
+
 	markedBlock: null,
 
 	newBlock: {
@@ -63,13 +68,16 @@ export const customGameSlice = createSlice({
 		},
 		handleDownPlayBoard: (state, action) => {
 			const { x, y } = action.payload;
-			if (!isInBoard(x, y, state.game.rows, state.game.cols)) return;
+			if (!isInBoard(state, x, y)) return;
 			if (state.step === 1) {
 				if (state.takenCoords.includes(strXY(x, y))) {
 					state.markedBlock = strXY(x, y);
+          state.Xcurr = x;
+          state.Ycurr = y;
+					state.operation = "delete";
 					return;
 				}
-				state.drawingBlock = true;
+				state.operation = "draw";
 				state.X0 = x;
 				state.Y0 = y;
 				state.newBlock = {
@@ -80,55 +88,74 @@ export const customGameSlice = createSlice({
 					l: 1,
 				};
 				state.shownBlocks = [...state.blocks, state.newBlock];
-			} else if (state.step === 2) {
-				state.markedBlock = strXY(x, y);
 			}
 		},
 		trackMove: (state, action) => {
 			const { x, y } = action.payload;
-			if (!isInBoard(x, y, state.game.rows, state.game.cols)) return;
-			if (state.markedBlock) return;
-			if (x <= state.X0) {
-				state.newBlock.h = state.X0 - x + 1;
-				state.newBlock.x = x;
-			} else {
-				state.newBlock.h = x - state.X0 + 1;
-				// state.x = state.X0;
+			if (!isInBoard(state, x, y)) return;
+			switch (state.operation) {
+				case "draw":
+					const nb = changeBlock(state, x, y);
+					if (nb) {
+						state.newBlock = nb;
+						state.shownBlocks = [...state.blocks, nb];
+					}
+					break;
+				case "delete":
+          state.Xcurr = x;
+          state.Ycurr = y;
+					break;
+				case "move":
+					break;
+				default:
+					break;
 			}
-			if (y <= state.Y0) {
-				state.newBlock.l = state.Y0 - y + 1;
-				state.newBlock.y = y;
-			} else {
-				state.newBlock.l = y - state.Y0 + 1;
-				// state.y = state.Y0;
-			}
-			state.shownBlocks = [...state.blocks, state.newBlock];
 		},
 
 		handleEnd(state) {
-			state.drawingBlock = false;
-      state.blocks = [...state.blocks, state.newBlock];
-			state.currentBlockName === 1 &&
-				(state.winBlock = {
-					...state.newBlock,
-					name: "GG",
-					color: "#c0ca33",
-				});
-			state.currentBlockName += 1;
+			switch (state.operation) {
+				case "draw":
+					state.blocks = [...state.blocks, state.newBlock];
+					state.currentBlockName === 1 &&
+						(state.winBlock = {
+							...state.newBlock,
+							name: "GG",
+							color: "#c0ca33",
+						});
+					state.currentBlockName += 1;
+					break;
+				case "move":
+					break;
+				case "delete":
+					if (
+						state.coordsToBlocks[state.markedBlock] !==
+						state.coordsToBlocks[strXY(state.Xcurr, state.Ycurr)]
+					)
+						return;
+					state.blocks = removedBlock(
+						state,
+						state.coordsToBlocks[state.markedBlock]
+					);
+					state.currentBlockName -= 1;
+          
+					break;
+				default:
+					break;
+			}
 
+			state.shownBlocks = [...state.blocks];
 			state.takenCoords = calcBoardCoords(state.blocks);
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
+			state.operation = null;
 		},
-		startMovingWinBlock: (state, action) => {
-			state.movingWinBlock = true;
-			this.placeWinBlock(action.payload);
+		removeLast(state) {
+			state.blocks = removedBlock(state, state.blockName - 1);
+			state.currentBlockName -= 1;
+			state.takenCoords = calcBoardCoords(state.blocks);
+			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
+			state.shownBlocks = [...state.blocks];
 		},
-		stopMovingWinBlock: (state) => {
-			state.movingWinBlock = false;
-		},
-		markBlock: (state, action) => {
-			state.markedBlock = action.payload;
-		},
+
 		// addBlock: (state) => {
 		// 	state.blocks = [...state.blocks, state.newBlock];
 		// 	state.currentBlockName === 1 &&
@@ -142,23 +169,7 @@ export const customGameSlice = createSlice({
 		// 	state.takenCoords = calcBoardCoords(state.blocks);
 		// 	state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
 		// },
-		removeBlock: (state, action) => {
-			let blHolder = [];
-			for (let b of state.blocks) {
-				if (Number(b.name) > Number(action.payload)) {
-					blHolder.push({
-						...b,
-						name: (Number(b.name) - 1).toString().padStart(2, "0"),
-					});
-				} else if (Number(b.name) < Number(action.payload)) {
-					blHolder.push(b);
-				}
-			}
-			state.currentBlockName -= 1;
-			state.blocks = blHolder;
-			state.takenCoords = calcBoardCoords(state.blocks);
-			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
-		},
+
 		placeWinBlock: (state, action) => {
 			const { x, y } = action.payload;
 
@@ -202,8 +213,6 @@ export const {
 	trackMove,
 	handleEnd,
 	changeNewBlock,
-	startMovingWinBlock,
-	stopMovingWinBlock,
 	markBlock,
 	addBlock,
 	removeBlock,
@@ -217,19 +226,50 @@ export const selectBlockName = (state) => state.customGame.currentBlockName;
 export const selectBlocks = (state) => state.customGame.blocks;
 export const selectTakenCoords = (state) => state.customGame.takenCoords;
 export const selectCoordsToBlocks = (state) => state.customGame.coordsToBlocks;
-export const selectDrawingBlock = (state) => state.customGame.drawingBlock;
-export const selectMovingWinBlock = (state) => state.customGame.movingWinBlock;
 export const selectMarkedBlock = (state) => state.customGame.markedBlock;
 export const selectWinBlock = (state) => state.customGame.winBlock;
 
-export const removeLast = () => (dispatch, getState) => {
-	const blockName = selectBlockName(getState());
-	dispatch(removeBlock(blockName - 1));
+const isInBoard = (state, x, y) => {
+	return x >= 0 && x < state.game.rows && y >= 0 && y < state.game.cols;
 };
 
-const isInBoard = (x, y, rows, cols) => {
-	console.log(x, y, rows, cols);
-	return x >= 0 && x < rows && y >= 0 && y < cols;
-};
+function removedBlock(state, delName) {
+	let blHolder = [];
+	for (let b of state.blocks) {
+		if (Number(b.name) > Number(delName)) {
+			blHolder.push({
+				...b,
+				name: (Number(b.name) - 1).toString().padStart(2, "0"),
+			});
+		} else if (Number(b.name) < Number(delName)) {
+			blHolder.push(b);
+		}
+	}
+	return blHolder;
+}
+
+function changeBlock(state, x, y) {
+	const newBlock = { ...state.newBlock };
+	if (x <= state.X0) {
+		newBlock.h = state.X0 - x + 1;
+		newBlock.x = x;
+	} else {
+		newBlock.h = x - state.X0 + 1;
+	}
+	if (y <= state.Y0) {
+		newBlock.l = state.Y0 - y + 1;
+		newBlock.y = y;
+	} else {
+		newBlock.l = y - state.Y0 + 1;
+	}
+	if (
+		!state.takenCoords.some((coord) =>
+			calcBlockCoords(newBlock).includes(coord)
+		)
+	) {
+		return newBlock;
+	}
+	return false;
+}
 
 export default customGameSlice.reducer;
