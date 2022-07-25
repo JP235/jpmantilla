@@ -19,7 +19,6 @@ import {
 	trackMove,
 	handleEnd,
 	placeWinBlock,
-	removeLast,
 	selectStep,
 	selectCols,
 	selectRows,
@@ -40,14 +39,9 @@ function CustomGame() {
 	const blocks = useSelector(selectBlocks);
 
 	const winBlock = useSelector(selectWinBlock);
-	const blockName = useSelector((state) => state.customGame.currentBlockName);
 
 	const [nameShift, setNameShift] = useState([]);
-	const [noNameShift, setNoNameShift] = useState([]);
-	const [blockH, setBlockH] = useState();
-	const [blockW, setBlockW] = useState();
-	const [blockX, setBlockX] = useState();
-	const [blockY, setBlockY] = useState();
+	// const [noNameShift, setNoNameShift] = useState([]);
 
 	const canvas = useRef(null);
 
@@ -55,7 +49,7 @@ function CustomGame() {
 		switch (step) {
 			case 1:
 				// setNewBlock(null);
-				setBlockH(0);
+        // setBlockH(0);
 				break;
 			case 2:
 				// // setshowBlocks(blocks);
@@ -104,7 +98,7 @@ function CustomGame() {
 			}
 		}
 		setNameShift(shiftedNames);
-		setNoNameShift(notShiftedNames);
+		// setNoNameShift(notShiftedNames);
 	};
 
 	const handleStart = (event) => {
@@ -147,36 +141,33 @@ function CustomGame() {
 	};
 	const menuStepZero = (
 		<div className="step-zero">
-			<div className="cols-control">
-				<UpDownControl
-					name="cols"
-					value={cols}
-					onUp={() => dispatch(changeCols(cols + 1))}
-					onDown={() => dispatch(changeCols(cols - 1))}
-				/>
-			</div>
 			<div className="rows-control">
 				<UpDownControl
-					name="rows"
+					name="Rows"
 					value={rows}
 					onUp={() => dispatch(changeRows(rows + 1))}
 					onDown={() => dispatch(changeRows(rows - 1))}
 				/>
 			</div>
+			&nbsp;&nbsp;&nbsp;&nbsp;
+			<div className="cols-control">
+				<UpDownControl
+					name="Columns"
+					value={cols}
+					onUp={() => dispatch(changeCols(cols + 1))}
+					onDown={() => dispatch(changeCols(cols - 1))}
+				/>
+			</div>
 		</div>
 	);
 	const menuStepOne = (
-		<input
-			id="undo"
-			type="button"
-			className="btn-menu step-one"
-			onClick={() => dispatch(removeLast())}
-			value="Delete Last Block"
-			disabled={blockName === 1 ? true : false}
-		/>
+    <>
+		<p className="step-one"> Click anywhere to start drawing a block. </p>
+		<p className="step-one"> Click a block to delete it. </p>
+    </>
 	);
 	const menuStepTwo = (
-		<div className="step two">
+		<div className="step-two">
 			<label>Pick Win-Block: </label>
 			<select
 				id="Win-Block"
@@ -189,7 +180,7 @@ function CustomGame() {
 		</div>
 	);
 	const menuStepThree = (
-		<div className="step three">
+		<div className="step-three">
 			<button
 				key={"save button"}
 				onClick={() => {
@@ -211,32 +202,38 @@ function CustomGame() {
 	const handleUpRef = useRef(handleUp);
 
 	useEffect(() => {
+    const handleDownValue = handleDownRef.current;
+    const trackValue = trackRef.current;
+    const handleUpValue = handleUpRef.current;
+
 		canvas.current = document.getElementById("playBoard");
 
-		canvas.current.addEventListener("mousedown", handleDownRef.current);
-		canvas.current.addEventListener("touchstart", handleDownRef.current, {
+		canvas.current.addEventListener("mousedown", handleDownValue);
+		canvas.current.addEventListener("touchstart", handleDownValue, {
 			passive: true,
 		});
-		canvas.current.addEventListener("mousemove", trackRef.current);
-		canvas.current.addEventListener("touchmove", trackRef.current, {
+		canvas.current.addEventListener("mousemove", trackValue);
+		canvas.current.addEventListener("touchmove", trackValue, {
 			passive: true,
 		});
-		canvas.current.addEventListener("touchend", handleUpRef.current);
-		canvas.current.addEventListener("mouseup", handleUpRef.current);
+		canvas.current.addEventListener("touchend", handleUpValue);
+		canvas.current.addEventListener("mouseup", handleUpValue);
+		document.addEventListener("mouseup", handleUpValue);
 
 		return () => {
 			canvas.current.removeEventListener(
 				"mousedown",
-				handleDownRef.current
+				handleDownValue
 			);
-			canvas.current.removeEventListener("mouseup", handleUpRef.current);
-			canvas.current.removeEventListener("mousemove", trackRef.current);
+			canvas.current.removeEventListener("mousemove", trackValue);
 			canvas.current.removeEventListener(
 				"touchstart",
-				handleDownRef.current
+				handleDownValue
 			);
-			canvas.current.removeEventListener("touchend", handleUpRef.current);
-			canvas.current.removeEventListener("touchmove", trackRef.current);
+			canvas.current.removeEventListener("touchend", handleUpValue);
+			canvas.current.removeEventListener("touchmove", trackValue);
+			canvas.current.removeEventListener("mouseup", handleUpValue);
+			document.removeEventListener("mouseup", handleUpValue);
 		};
 	}, []);
 
@@ -273,7 +270,7 @@ function CustomGame() {
 					type="create"
 				/>
 			</div>
-			<div className="step-menu">
+			<div className="step-menus">
 				{step === 0 && menuStepZero}
 				{step === 1 && menuStepOne}
 				{step === 2 && menuStepTwo}

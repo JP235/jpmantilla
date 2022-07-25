@@ -7,7 +7,7 @@ export const BLOCKMARGIN = 3;
 export const BOARDLISTSCALE = 0.3;
 
 export const blockSample = {
-  name: "XX",
+  name: "00",
   x: 0,
   y: 0,
   h: 1,

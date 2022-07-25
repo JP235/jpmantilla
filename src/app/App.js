@@ -1,4 +1,5 @@
 import "./App.css";
+import "../common/common.css";
 
 import React from "react";
 

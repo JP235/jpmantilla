@@ -24,12 +24,16 @@ const initialState = {
 
 	X0: null,
 	Y0: null,
-  // there is no touches array in event touchend
-  Xcurr: null,
-  Ycurr: null,
+	// there is no touches array in event touchend
+	Xcurr: null,
+	Ycurr: null,
 
 	takenCoords: [],
 	coordsToBlocks: {},
+	minumumEmptySpaces: 2,
+	maxH: 2,
+	maxL: 2,
+	maxSizeBlock: null,
 
 	operation: null,
 
@@ -62,9 +66,13 @@ export const customGameSlice = createSlice({
 		},
 		changeCols: (state, action) => {
 			state.game.cols = Math.max(2, Math.min(9, action.payload));
+			state.maxL = Math.floor(state.game.cols / 2);
+			state.minumumEmptySpaces = Math.min(state.maxH, state.maxL);
 		},
 		changeRows: (state, action) => {
 			state.game.rows = Math.max(2, Math.min(9, action.payload));
+			state.maxH = Math.floor(state.game.rows / 2);
+			state.minumumEmptySpaces = Math.min(state.maxH, state.maxL);
 		},
 		handleDownPlayBoard: (state, action) => {
 			const { x, y } = action.payload;
@@ -72,16 +80,21 @@ export const customGameSlice = createSlice({
 			if (state.step === 1) {
 				if (state.takenCoords.includes(strXY(x, y))) {
 					state.markedBlock = strXY(x, y);
-          state.Xcurr = x;
-          state.Ycurr = y;
+					state.Xcurr = x;
+					state.Ycurr = y;
 					state.operation = "delete";
 					return;
 				}
+				if (
+					state.takenCoords.length + state.minumumEmptySpaces >=
+					state.game.rows * state.game.cols
+				)
+					return;
 				state.operation = "draw";
 				state.X0 = x;
 				state.Y0 = y;
 				state.newBlock = {
-					name: state.currentBlockName.toString().padStart(2, "0"),
+					name: state.currentBlockName,
 					x: x,
 					y: y,
 					h: 1,
@@ -102,8 +115,8 @@ export const customGameSlice = createSlice({
 					}
 					break;
 				case "delete":
-          state.Xcurr = x;
-          state.Ycurr = y;
+					state.Xcurr = x;
+					state.Ycurr = y;
 					break;
 				case "move":
 					break;
@@ -123,21 +136,27 @@ export const customGameSlice = createSlice({
 							color: "#c0ca33",
 						});
 					state.currentBlockName += 1;
+					console.log(state.newBlock.h, state.newBlock.l);
+					if (
+						state.newBlock.h === state.maxH &&
+						state.newBlock.l === state.maxL
+					) {
+						state.maxSizeBlock = state.newBlock.name;
+					}
 					break;
 				case "move":
 					break;
 				case "delete":
 					if (
 						state.coordsToBlocks[state.markedBlock] !==
-						state.coordsToBlocks[strXY(state.Xcurr, state.Ycurr)]
+						state.coordsToBlocks[strXY(state.Xcurr, state.Ycurr)] //at mouse up
 					)
 						return;
-					state.blocks = removedBlock(
-						state,
-						state.coordsToBlocks[state.markedBlock]
-					);
+					const [bls, mxBl] = removedBlock(state);
+					state.blocks = bls;
+					state.maxSizeBlock = mxBl;
 					state.currentBlockName -= 1;
-          
+
 					break;
 				default:
 					break;
@@ -148,14 +167,6 @@ export const customGameSlice = createSlice({
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
 			state.operation = null;
 		},
-		removeLast(state) {
-			state.blocks = removedBlock(state, state.blockName - 1);
-			state.currentBlockName -= 1;
-			state.takenCoords = calcBoardCoords(state.blocks);
-			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
-			state.shownBlocks = [...state.blocks];
-		},
-
 		// addBlock: (state) => {
 		// 	state.blocks = [...state.blocks, state.newBlock];
 		// 	state.currentBlockName === 1 &&
@@ -216,7 +227,7 @@ export const {
 	markBlock,
 	addBlock,
 	removeBlock,
-  removeLast,
+	removeLast,
 	placeWinBlock,
 } = customGameSlice.actions;
 
@@ -234,40 +245,71 @@ const isInBoard = (state, x, y) => {
 	return x >= 0 && x < state.game.rows && y >= 0 && y < state.game.cols;
 };
 
-function removedBlock(state, delName) {
+function removedBlock(state) {
 	let blHolder = [];
+	let delName = state.coordsToBlocks[state.markedBlock];
 	for (let b of state.blocks) {
 		if (Number(b.name) > Number(delName)) {
 			blHolder.push({
 				...b,
-				name: (Number(b.name) - 1).toString().padStart(2, "0"),
+				name: (Number(b.name) - 1)
 			});
 		} else if (Number(b.name) < Number(delName)) {
 			blHolder.push(b);
 		}
 	}
-	return blHolder;
+	if (state.maxSizeBlock > delName) {
+		console.log(blHolder, state.maxSizeBlock - 1);
+		return [blHolder, state.maxSizeBlock - 1];
+	} else if (state.maxSizeBlock === delName) {
+		console.log(blHolder, null);
+		return [blHolder, null];
+	}
+	return [blHolder, state.maxSizeBlock];
+	// return blHolder;
 }
 
 function changeBlock(state, x, y) {
 	const newBlock = { ...state.newBlock };
 	if (x <= state.X0) {
-		newBlock.h = state.X0 - x + 1;
 		newBlock.x = x;
+		newBlock.h = Math.min(
+			Math.floor(state.game.rows / 2),
+			state.X0 - x + 1
+		);
 	} else {
-		newBlock.h = x - state.X0 + 1;
+		newBlock.h = Math.min(
+			Math.floor(state.game.rows / 2),
+			x - state.X0 + 1
+		);
 	}
 	if (y <= state.Y0) {
-		newBlock.l = state.Y0 - y + 1;
 		newBlock.y = y;
+		newBlock.l = Math.min(
+			Math.floor(state.game.cols / 2),
+			state.Y0 - y + 1
+		);
 	} else {
-		newBlock.l = y - state.Y0 + 1;
+		newBlock.l = Math.min(
+			Math.floor(state.game.cols / 2),
+			y - state.Y0 + 1
+		);
 	}
+	const newBlockCoords = calcBlockCoords(newBlock);
 	if (
-		!state.takenCoords.some((coord) =>
-			calcBlockCoords(newBlock).includes(coord)
-		)
+		!state.takenCoords.some((coord) => newBlockCoords.includes(coord)) &&
+		state.takenCoords.length +
+			newBlockCoords.length +
+			state.minumumEmptySpaces <=
+			state.game.rows * state.game.cols
 	) {
+		if (
+			state.maxSizeBlock &&
+			newBlock.h === state.maxH &&
+			newBlock.l === state.maxL
+		)
+			return false;
+
 		return newBlock;
 	}
 	return false;

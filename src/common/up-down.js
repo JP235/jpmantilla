@@ -1,5 +1,3 @@
-import "./common.css";
-
 function UpDownControl(props) {
 	const name = props.name;
 	const value = props.value;
@@ -11,7 +9,7 @@ function UpDownControl(props) {
 			<span className="updown-name">{name}</span>
 			<input
 				type="image"
-        className="up-arrow"
+        className="uparrow arrow"
 				src="up-arrow.png"
         alt="up"
 				onClick={onUp}
@@ -19,7 +17,7 @@ function UpDownControl(props) {
 			<div className="updown-value">{value}</div>
 			<input
 				type="image"
-        className="down-arrow"
+        className="downarrow arrow"
 				src="down-arrow.png"
         alt="down"
 				onClick={onDown}

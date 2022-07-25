@@ -9,22 +9,21 @@
 	height: 2em;
 }
 .container-create {
-	min-height: 300px;
 	margin: auto;
 	display: flex;
 	justify-content: center;
 	/* outline: dashed 1px black; */
 }
-.step-menu {
-	grid-row: 3;
+.step-menus {
     margin: auto;
     margin-top: 1em;
     width: 10em;
     justify-content: center;
+    align-items: center;
 
 }
 .step-zero{
-    margin: auto;
+    margin-left: -45%;
     display: flex;
  }
 .cols-control{
@@ -34,7 +33,12 @@
     grid-column: 2;
 }
 .step-one{
-    margin: auto;
-    width: 10em;
-    height: 3em;
+    margin-left: -50%;
+    display: flex;
+    text-align: left;
+}
+.step-two{
+    margin-left: -50%;
+    display: flex;
+    text-align: left;
 }

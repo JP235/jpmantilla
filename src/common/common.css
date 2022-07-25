@@ -1,29 +1,51 @@
+#playBoard {
+	position: relative;
+	/* top: 0; */
+	/* left: 20%; */
+    /* margin: 0 auto; */
+	max-width: 64%;
+	min-height: 100px;
+	max-height: 300px;
+	/* min-width: 10%;
+	min-height: 50%; */
+}
+
+#winBoard {
+	position: relative;
+	top: 10%;
+	max-width: 32%;
+	max-height: 150px;
+}
+
 .up-down-control{
-    display: grid;
     width: 4em;
     height: 8em;
-    /* justify-content: center; */
+    justify-content: center;
+    align-items: center;
 }
 .updown-name{
-    grid-row: 1;
-    margin: auto;
     text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 .updown-value{
-    /* margin: auto; */
+    margin-left: auto;
+    margin-right: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     grid-row: 3;
     width: 2em;
     
 }
-.up-arrow{
-    /* margin: auto; */
-    grid-row: 2;
-    align-content: center;
+.arrow{
+    display: flex;
+    align-items: center;
+    justify-content: center;    
+    margin-left: auto;
+    margin-right: auto;
     width: 3em;
 }
-.down-arrow{
-    /* margin: auto; */
-    width: 3em;
-
-}
-

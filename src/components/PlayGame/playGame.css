@@ -1,52 +1,30 @@
-
 .container-play {
- 	min-height: 300px;
-    margin: auto;
-    display: flex;
-    justify-content: center
-    /* outline: dashed 1px black; */
+	margin: auto;
+	display: flex;
+	justify-content: center;
+	/* outline: dashed 1px black; */
 }
 .buttons-play {
-     margin: auto;
-    margin-top: 10px;   
-    top: 38em;
-    height: 5em;
-    width: 8em;
-    /* outline: dashed 1px black; */
+	margin: auto;
+	margin-top: 10px;
+	top: 38em;
+	height: 5em;
+	width: 8em;
+	/* outline: dashed 1px black; */
 }
-#playBoard {
-	position: relative;
-	/* top: 0; */
-	/* left: 20%; */
-    /* margin: 0 auto; */
-	max-width: 250px;
-	max-height: 300px;
-	/* min-width: 10%;
-	min-height: 50%; */
-}
-#winBoard {
-	position: relative;
-	top: 10%;
-	/* left: 58.5%;  */
-	max-width: 125px;
-	max-height: 150px;
-	/* min-width: 5%;
-	min-height: 25%; */
-}
-
 
 .save {
 	position: relative;
-    width: 6em;
-    height: 3em;
-    left: 2em;
-    top: 0.5em;
-    color: rgb(37, 192, 50);
-    background-color: #a2ff73;
-    transition-duration: 0.4s;
+	width: 6em;
+	height: 3em;
+	left: 2em;
+	top: 0.5em;
+	color: rgb(37, 192, 50);
+	background-color: #a2ff73;
+	transition-duration: 0.4s;
 }
-.redo .undo{
-    top: 1em;
+.redo .undo {
+	top: 1em;
 }
 .btn-menu {
 	border-radius: 4px;
@@ -62,8 +40,8 @@
 }
 
 .undo:disabled {
-    background-color: #969696;
+	background-color: #969696;
 }
 .redo:disabled {
-    background-color: #969696;
+	background-color: #969696;
 }
