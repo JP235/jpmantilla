@@ -26,19 +26,6 @@
 .redo .undo {
 	top: 1em;
 }
-.btn-menu {
-	border-radius: 4px;
-	width: 4em;
-	border: solid 1px #236a3f;
-	color: black;
-	background-color: #e7e7e7;
-	transition-duration: 0.4s;
-}
-.btn-menu:hover {
-	background-color: #947a7a; /* Green */
-	color: rgb(255, 255, 255);
-}
-
 .undo:disabled {
 	background-color: #969696;
 }

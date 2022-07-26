@@ -4,9 +4,9 @@ import { Grid, Button, ButtonGroup, Typography } from "@mui/material";
 const Navbar = () => {
 	return (
 		<nav className="Navbar">
-			<Grid container spacing={3}>
+			<Grid container spacing={2}>
 				<Grid item xs={12} align="center">
-					<Typography variant="h2" compact="h2">
+					<Typography variant="h3" compact="h3">
 						KLOTSKI!!
 					</Typography>
 				</Grid>
@@ -15,6 +15,7 @@ const Navbar = () => {
 						disableElevation
 						variant="contained"
 						color="secondary"
+						size="small"
 						fullWidth={true}
 					>
 						{/* <Button color="primary" href="/">

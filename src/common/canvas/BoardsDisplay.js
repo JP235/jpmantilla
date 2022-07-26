@@ -2,7 +2,7 @@ import React from "react";
 import BoardCanvas from "./BoardCanvas";
 
 function BoardsDisplay(props) {
-	const { game, blocks, winBlock, type } = props;
+	const { game, blocks, winBlock, type, invert } = props;
 	const { rows, cols } = game;
 
 	return (
@@ -10,7 +10,7 @@ function BoardsDisplay(props) {
 			<BoardCanvas
 				rows={rows}
 				cols={cols}
-				blocks={blocks}
+				blocks={invert ? [winBlock] : blocks}
 				id={type === "list" ? "" : "playBoard"}
 				className={type === "list" ? "list-board" : "show-board"}
 			/>
@@ -18,7 +18,7 @@ function BoardsDisplay(props) {
 			<BoardCanvas
 				rows={rows}
 				cols={cols}
-				blocks={[winBlock]}
+				blocks={invert ? blocks : [winBlock]}
 				id={type === "list" ? "" : "winBoard"}
 				className={type === "list" ? "list-board" : "show-board"}
 			/>

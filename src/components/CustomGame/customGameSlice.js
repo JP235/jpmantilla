@@ -54,11 +54,22 @@ export const customGameSlice = createSlice({
 	reducers: {
 		prevStep: (state) => {
 			state.step -= 1;
+      switch  (state.step) {
+        case 0:
+          state.blocks = [];
+          state.winBlock = null;
+          state.currentBlockName = 1;
+          state.takenCoords = [];
+          state.newBlock = null;
+          break
+        case 1:
+          state.shownBlocks = [...state.blocks];
+          state.winBlock = {...state.blocks.find(b => b.name === 1),
+            name:"GG",
+            color: "#c0ca33",
+           };
+      }
 			if (state.step === 0) {
-				state.blocks = [];
-				state.winBlock = null;
-				state.currentBlockName = 1;
-				state.takenCoords = [];
 			}
 		},
 		nextStep: (state) => {

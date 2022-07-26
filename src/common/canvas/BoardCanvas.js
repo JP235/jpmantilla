@@ -63,7 +63,7 @@ const BoardCanvas = (props) => {
 
 	return (
 		<canvas
-			className={["board", className].join(" ")}
+			className={className}
 			ref={canvasRef}
 			{...rest}
 		/>

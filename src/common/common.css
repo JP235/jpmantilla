@@ -17,9 +17,22 @@
 	max-height: 150px;
 }
 
+.btn-menu {
+	border-radius: 4px;
+	width: 4em;
+	border: solid 1px #236a3f;
+	color: black;
+	background-color: #e7e7e7;
+	transition-duration: 0.4s;
+}
+.btn-menu:hover {
+	background-color: #23b25c; /* Green */
+	color: rgb(255, 255, 255);
+}
+
 .up-down-control{
-    width: 4em;
-    height: 8em;
+    width: fit-content;
+    height: fit-content;
     justify-content: center;
     align-items: center;
 }
@@ -37,8 +50,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    grid-row: 3;
-    width: 2em;
+    width: fit-content;
     
 }
 .arrow{

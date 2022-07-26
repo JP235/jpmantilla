@@ -49,7 +49,7 @@ function CustomGame() {
 		switch (step) {
 			case 1:
 				// setNewBlock(null);
-        // setBlockH(0);
+				// setBlockH(0);
 				break;
 			case 2:
 				// // setshowBlocks(blocks);
@@ -65,7 +65,7 @@ function CustomGame() {
 	const nextStepActions = () => {
 		switch (step) {
 			case 1:
-				makeWinBoard("01");
+				// makeWinBoard("01");
 				break;
 			case 2:
 				// setshowBlocks(nameShift);
@@ -73,32 +73,6 @@ function CustomGame() {
 			default:
 		}
 		dispatch(nextStep());
-	};
-	const makeWinBoard = (winName) => {
-		if (!winName) return;
-		let shiftedNames = [];
-		let notShiftedNames = [];
-		let winBlock = {};
-
-		for (let b of blocks) {
-			if (b.name === winName) {
-				winBlock = { ...b, name: "GG", color: "#c0ca33" };
-				dispatch(placeWinBlock(winBlock));
-				shiftedNames.push(winBlock);
-				notShiftedNames.push(winBlock);
-			} else if (Number(b.name) > Number(winName)) {
-				shiftedNames.push({
-					...b,
-					name: (Number(b.name) - 1).toString().padStart(2, "0"),
-				});
-				notShiftedNames.push(b);
-			} else {
-				shiftedNames.push(b);
-				notShiftedNames.push(b);
-			}
-		}
-		setNameShift(shiftedNames);
-		// setNoNameShift(notShiftedNames);
 	};
 
 	const handleStart = (event) => {
@@ -161,17 +135,20 @@ function CustomGame() {
 		</div>
 	);
 	const menuStepOne = (
-    <>
-		<p className="step-one"> Click anywhere to start drawing a block. </p>
-		<p className="step-one"> Click a block to delete it. </p>
-    </>
+		<>
+			<p className="step-one">
+				{" "}
+				Click anywhere to start drawing a block.{" "}
+			</p>
+			<p className="step-one"> Click a block to delete it. </p>
+		</>
 	);
 	const menuStepTwo = (
 		<div className="step-two">
 			<label>Pick Win-Block: </label>
 			<select
 				id="Win-Block"
-				onChange={(e) => makeWinBoard(e.target.value)}
+				// onChange={(e) => makeWinBoard(e.target.value)}
 			>
 				{blocks.map((bl) => (
 					<option key={bl.name}>{bl.name}</option>
@@ -202,9 +179,9 @@ function CustomGame() {
 	const handleUpRef = useRef(handleUp);
 
 	useEffect(() => {
-    const handleDownValue = handleDownRef.current;
-    const trackValue = trackRef.current;
-    const handleUpValue = handleUpRef.current;
+		const handleDownValue = handleDownRef.current;
+		const trackValue = trackRef.current;
+		const handleUpValue = handleUpRef.current;
 
 		canvas.current = document.getElementById("playBoard");
 
@@ -221,15 +198,9 @@ function CustomGame() {
 		document.addEventListener("mouseup", handleUpValue);
 
 		return () => {
-			canvas.current.removeEventListener(
-				"mousedown",
-				handleDownValue
-			);
+			canvas.current.removeEventListener("mousedown", handleDownValue);
 			canvas.current.removeEventListener("mousemove", trackValue);
-			canvas.current.removeEventListener(
-				"touchstart",
-				handleDownValue
-			);
+			canvas.current.removeEventListener("touchstart", handleDownValue);
 			canvas.current.removeEventListener("touchend", handleUpValue);
 			canvas.current.removeEventListener("touchmove", trackValue);
 			canvas.current.removeEventListener("mouseup", handleUpValue);
@@ -262,13 +233,15 @@ function CustomGame() {
 					Next
 				</button>
 			</div>
-			<div className="container-create">
-				<BoardsDisplay
-					blocks={step === 0 ? [blockSample] : shownBlocks}
-					game={game}
-					winBlock={winBlock}
-					type="create"
-				/>
+			<div className="container-boards">
+				<div className="boards-display">
+					<BoardsDisplay
+						blocks={step === 0 ? [blockSample] : shownBlocks}
+						game={game}
+						winBlock={winBlock}
+						type="create"
+					/>
+				</div>
 			</div>
 			<div className="step-menus">
 				{step === 0 && menuStepZero}
