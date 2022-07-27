@@ -16,27 +16,33 @@
 	max-width: 32%;
 	max-height: 150px;
 }
-
+.prev-next-buttons {
+	/* width: 5.1em; */
+	height: 2em;
+}
 .btn-menu {
 	border-radius: 4px;
 	width: 4em;
 	border: solid 1px #236a3f;
 	color: black;
-	background-color: #e7e7e7;
 	transition-duration: 0.4s;
 }
 .btn-menu:hover {
-	background-color: #23b25c; /* Green */
+	background-color: #23b25c; 
 	color: rgb(255, 255, 255);
 }
+.btn-menu:disabled {
+    background-color: #59665e; 
+    color: rgb(255, 255, 255);
+}
 
-.up-down-control{
+.increase-decrease{
     width: fit-content;
     height: fit-content;
     justify-content: center;
     align-items: center;
 }
-.updown-name{
+.increase-decrease-name{
     text-transform: uppercase;
     display: flex;
     align-items: center;
@@ -44,7 +50,7 @@
     margin-left: auto;
     margin-right: auto;
 }
-.updown-value{
+.increase-decrease-value{
     margin-left: auto;
     margin-right: auto;
     display: flex;
@@ -60,4 +66,13 @@
     margin-left: auto;
     margin-right: auto;
     width: 3em;
+}
+.decrease-updown {
+    transform: rotate(180deg);
+}
+.increase-leftright{
+    transform: rotate(90deg);
+}
+.decrease-leftright{
+    transform: rotate(-90deg);
 }

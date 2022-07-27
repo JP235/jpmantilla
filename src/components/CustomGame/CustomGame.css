@@ -2,25 +2,22 @@
 	margin: auto;
 	margin-bottom: 10px;
 	width: fit-content;
-	/* outline: dashed 1px black; */
 }
-.step-control {
-	/* width: 5.1em; */
-	height: 2em;
-}
-.container-boards {
+
+.container-boards-custom {
     height: 300px;
+    outline: dashed 1px rgb(173, 43, 43);
 }
 .boards-display {
 	margin: auto;
 	display: flex;
 	justify-content: center;
-	/* outline: dashed 1px black; */
+	outline: dashed 1px black;
 }
 .step-menus {
     margin: auto;
     margin-top: 1em;
-    width: 10em;
+    width: fit-content;
     justify-content: center;
     align-items: center;
 

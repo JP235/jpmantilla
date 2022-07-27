@@ -4,9 +4,9 @@ import { useDispatch } from "react-redux";
 import {
 	selectIsAuthenticated,
 	selectIsLoading,
-} from "../../api/auth/authAPISlice";
+} from "../api/auth/authAPISlice";
 
-import { loadUser } from "../../api/auth/auth";
+import { loadUser } from "../api/auth/auth";
 import { useEffect } from "react";
 
 const Protected = ({ children }) => {

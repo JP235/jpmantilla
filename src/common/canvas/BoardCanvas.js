@@ -30,18 +30,16 @@ function drawBlock(ctx, block) {
 		canvasBlock.y + BLOCKSIDE / 2 + BORDERMARGIN
 	);
 	ctx.fill();
-	// ctx.strokeStyle = "red"
-	// roundRect(ctx,x, y, h, l,5,false,true)
 }
 
 const BoardCanvas = (props) => {
 	const { blocks, rows, cols, className, ...rest } = props;
 	const canvasRef = useRef(null);
-	const height =
+	let height =
 		rows * BLOCKSIDE + (rows - 1) * BLOCKMARGIN + 2 * BORDERMARGIN;
-	const width =
+	let width =
 		cols * BLOCKSIDE + (cols - 1) * BLOCKMARGIN + 2 * BORDERMARGIN;
-
+   
 	useEffect(() => {
 		const canvas = canvasRef.current;
 		const context = canvas.getContext("2d");

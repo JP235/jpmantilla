@@ -1,4 +1,5 @@
 import { createSlice } from "@reduxjs/toolkit";
+import { blockSample } from "../../common/canvas/constants";
 import {
 	calcBoardCoords,
 	calcBlockCoords,
@@ -18,13 +19,14 @@ const initialState = {
 
 	step: 0,
 	currentBlockName: 1,
-	shownBlocks: [],
+	shownBlocks: [blockSample],
 
 	winBlock: {},
+  winBlockId: null,
 
 	X0: null,
 	Y0: null,
-	// there is no touches array in event touchend
+	// there is no touches array in event touchend, have to keep track of them
 	Xcurr: null,
 	Ycurr: null,
 
@@ -52,38 +54,52 @@ export const customGameSlice = createSlice({
 	name: "customGame",
 	initialState,
 	reducers: {
-		prevStep: (state) => {
-			state.step -= 1;
-      switch  (state.step) {
-        case 0:
-          state.blocks = [];
-          state.winBlock = null;
-          state.currentBlockName = 1;
-          state.takenCoords = [];
-          state.newBlock = null;
-          break
-        case 1:
-          state.shownBlocks = [...state.blocks];
-          state.winBlock = {...state.blocks.find(b => b.name === 1),
-            name:"GG",
-            color: "#c0ca33",
-           };
-      }
-			if (state.step === 0) {
+		changedStep: (state, action) => {
+			state.step = action.payload;
+			switch (state.step) {
+				case 0:
+					state.blocks = [];
+					state.shownBlocks = [blockSample];
+					state.winBlock = null;
+          state.winBlockId = null;
+					state.currentBlockName = 1;
+					state.takenCoords = [];
+					state.newBlock = null;
+					break;
+				case 1:
+					state.shownBlocks = [...state.blocks];
+					state.winBlock = {
+						...state.blocks.find((b) => b.name === 1),
+						name: "GG",
+						color: "#c0ca33",
+					};
+          state.winBlockId = 1;
+					break;
+				default:
+					break;
 			}
 		},
-		nextStep: (state) => {
-			state.step += 1;
-		},
-		changeCols: (state, action) => {
+		changedCols: (state, action) => {
 			state.game.cols = Math.max(2, Math.min(9, action.payload));
 			state.maxL = Math.floor(state.game.cols / 2);
 			state.minumumEmptySpaces = Math.min(state.maxH, state.maxL);
 		},
-		changeRows: (state, action) => {
+		changedRows: (state, action) => {
 			state.game.rows = Math.max(2, Math.min(9, action.payload));
 			state.maxH = Math.floor(state.game.rows / 2);
 			state.minumumEmptySpaces = Math.min(state.maxH, state.maxL);
+		},
+		changedWinBlock: (state, action) => {
+			console.log(action.payload);
+			state.winBlock = {
+				...state.blocks.find(
+					(b) => Number(b.name) === Number(action.payload)
+				),
+				name: "GG",
+				color: "#c0ca33",
+			};
+      state.winBlockId = action.payload;
+      // state.shownBlocks = 
 		},
 		handleDownPlayBoard: (state, action) => {
 			const { x, y } = action.payload;
@@ -112,6 +128,9 @@ export const customGameSlice = createSlice({
 					l: 1,
 				};
 				state.shownBlocks = [...state.blocks, state.newBlock];
+			} else if (state.step === 2) {
+				state.winBlock = moveWinBlock(state, x, y);
+				state.operation = "move";
 			}
 		},
 		trackMove: (state, action) => {
@@ -119,7 +138,7 @@ export const customGameSlice = createSlice({
 			if (!isInBoard(state, x, y)) return;
 			switch (state.operation) {
 				case "draw":
-					const nb = changeBlock(state, x, y);
+					const nb = changeNewBlockXY(state, x, y);
 					if (nb) {
 						state.newBlock = nb;
 						state.shownBlocks = [...state.blocks, nb];
@@ -130,12 +149,12 @@ export const customGameSlice = createSlice({
 					state.Ycurr = y;
 					break;
 				case "move":
+					state.winBlock = moveWinBlock(state, x, y);
 					break;
 				default:
 					break;
 			}
 		},
-
 		handleEnd(state) {
 			switch (state.operation) {
 				case "draw":
@@ -147,15 +166,12 @@ export const customGameSlice = createSlice({
 							color: "#c0ca33",
 						});
 					state.currentBlockName += 1;
-					console.log(state.newBlock.h, state.newBlock.l);
 					if (
 						state.newBlock.h === state.maxH &&
 						state.newBlock.l === state.maxL
 					) {
 						state.maxSizeBlock = state.newBlock.name;
 					}
-					break;
-				case "move":
 					break;
 				case "delete":
 					if (
@@ -178,68 +194,17 @@ export const customGameSlice = createSlice({
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
 			state.operation = null;
 		},
-		// addBlock: (state) => {
-		// 	state.blocks = [...state.blocks, state.newBlock];
-		// 	state.currentBlockName === 1 &&
-		// 		(state.winBlock = {
-		// 			...state.newBlock,
-		// 			name: "GG",
-		// 			color: "#c0ca33",
-		// 		});
-		// 	state.currentBlockName += 1;
-
-		// 	state.takenCoords = calcBoardCoords(state.blocks);
-		// 	state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
-		// },
-
-		placeWinBlock: (state, action) => {
-			const { x, y } = action.payload;
-
-			if (action.payload.name) {
-				state.winBlock = action.payload;
-			} else if (
-				x >= 0 &&
-				x < state.game.rows &&
-				y >= 0 &&
-				y < state.game.cols
-			) {
-				if (
-					x + state.winBlock.h - 1 < state.game.rows &&
-					y + state.winBlock.l - 1 < state.game.cols
-				) {
-					state.winBlock = { ...state.winBlock, x, y };
-				} else {
-					const new_x = Math.min(
-						state.game.rows - state.winBlock.h,
-						x
-					);
-					const new_y = Math.min(
-						state.game.cols - state.winBlock.l,
-						y
-					);
-					state.winBlock = { ...state.winBlock, x: new_x, y: new_y };
-				}
-			}
-			state.takenCoords = calcBoardCoords(state.blocks);
-			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
-		},
 	},
 });
 
 export const {
-	prevStep,
-	nextStep,
-	changeCols,
-	changeRows,
+	changedStep,
+	changedCols,
+	changedRows,
+	changedWinBlock,
 	handleDownPlayBoard,
 	trackMove,
 	handleEnd,
-	changeNewBlock,
-	markBlock,
-	addBlock,
-	removeBlock,
-	removeLast,
-	placeWinBlock,
 } = customGameSlice.actions;
 
 export const selectStep = (state) => state.customGame.step;
@@ -252,6 +217,13 @@ export const selectCoordsToBlocks = (state) => state.customGame.coordsToBlocks;
 export const selectMarkedBlock = (state) => state.customGame.markedBlock;
 export const selectWinBlock = (state) => state.customGame.winBlock;
 
+export const prevStep = () => (dispatch, getState) => {
+	dispatch(changedStep(getState().customGame.step - 1));
+};
+export const nextStep = () => (dispatch, getState) => {
+	dispatch(changedStep(getState().customGame.step + 1));
+};
+
 const isInBoard = (state, x, y) => {
 	return x >= 0 && x < state.game.rows && y >= 0 && y < state.game.cols;
 };
@@ -263,48 +235,71 @@ function removedBlock(state) {
 		if (Number(b.name) > Number(delName)) {
 			blHolder.push({
 				...b,
-				name: (Number(b.name) - 1)
+				name: Number(b.name) - 1,
 			});
 		} else if (Number(b.name) < Number(delName)) {
 			blHolder.push(b);
 		}
 	}
 	if (state.maxSizeBlock > delName) {
-		console.log(blHolder, state.maxSizeBlock - 1);
 		return [blHolder, state.maxSizeBlock - 1];
 	} else if (state.maxSizeBlock === delName) {
-		console.log(blHolder, null);
 		return [blHolder, null];
 	}
 	return [blHolder, state.maxSizeBlock];
 	// return blHolder;
 }
 
-function changeBlock(state, x, y) {
+function moveWinBlock(state, x, y) {
+	if (
+		x + state.winBlock.h - 1 < state.game.rows &&
+		y + state.winBlock.l - 1 < state.game.cols
+	) {
+		return { ...state.winBlock, x, y };
+	} else {
+		const new_x = Math.min(state.game.rows - state.winBlock.h, x);
+		const new_y = Math.min(state.game.cols - state.winBlock.l, y);
+		return { ...state.winBlock, x: new_x, y: new_y };
+	}
+}
+
+export const makeWinBoard = (winName) => (dispatch, getState) => {
+	if (!winName) return;
+	let shiftedNames = [];
+	let notShiftedNames = [];
+	let winBlock = {};
+
+	for (let b of getState().blocks) {
+		if (b.name === winName) {
+			winBlock = { ...b, name: "GG", color: "#c0ca33" };
+			shiftedNames.push(winBlock);
+			notShiftedNames.push(winBlock);
+		} else if (Number(b.name) > Number(winName)) {
+			shiftedNames.push({
+				...b,
+				name: Number(b.name) - 1,
+			});
+			notShiftedNames.push(b);
+		} else {
+			shiftedNames.push(b);
+			notShiftedNames.push(b);
+		}
+	}
+	return [winBlock, shiftedNames, notShiftedNames];
+};
+function changeNewBlockXY(state, x, y) {
 	const newBlock = { ...state.newBlock };
 	if (x <= state.X0) {
 		newBlock.x = x;
-		newBlock.h = Math.min(
-			Math.floor(state.game.rows / 2),
-			state.X0 - x + 1
-		);
+		newBlock.h = Math.min(state.maxH, state.X0 - x + 1);
 	} else {
-		newBlock.h = Math.min(
-			Math.floor(state.game.rows / 2),
-			x - state.X0 + 1
-		);
+		newBlock.h = Math.min(state.maxH, x - state.X0 + 1);
 	}
 	if (y <= state.Y0) {
 		newBlock.y = y;
-		newBlock.l = Math.min(
-			Math.floor(state.game.cols / 2),
-			state.Y0 - y + 1
-		);
+		newBlock.l = Math.min(state.maxL, state.Y0 - y + 1);
 	} else {
-		newBlock.l = Math.min(
-			Math.floor(state.game.cols / 2),
-			y - state.Y0 + 1
-		);
+		newBlock.l = Math.min(state.maxL, y - state.Y0 + 1);
 	}
 	const newBlockCoords = calcBlockCoords(newBlock);
 	if (
