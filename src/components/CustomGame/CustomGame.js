@@ -177,7 +177,7 @@ function CustomGame() {
 					)}
 					{(step === 2 || step === 3) && (
 						<BoardsDisplay
-							blocks={shownBlocks}
+							blocks={step === 2 ? shownBlocks : blocks}
 							game={game}
 							winBlock={winBlock}
 							type="create"

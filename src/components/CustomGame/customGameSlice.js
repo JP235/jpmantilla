@@ -60,7 +60,6 @@ export const customGameSlice = createSlice({
 					state.blocks = [];
 					state.shownBlocks = [blockSample];
 					state.winBlock = null;
-					state.winBlockId = null;
 					state.currentBlockName = 1;
 					state.takenCoords = [];
 					state.newBlock = null;
@@ -73,12 +72,14 @@ export const customGameSlice = createSlice({
 						color: "#c0ca33",
 						id: 1,
 					};
-					state.winBlockId = 1;
 					break;
 				case 2:
 					state.shownBlocks = makeWinBoard(state);
+					break;
+				case 3:
+					state.blocks = makeWinBoard(state, true);
+					break;
 				default:
-					state.shownBlocks = makeWinBoard(state, true);
 					break;
 			}
 		},
@@ -192,7 +193,7 @@ export const customGameSlice = createSlice({
 				default:
 					return;
 			}
-   
+
 			state.shownBlocks = [...state.blocks];
 			state.takenCoords = calcBoardCoords(state.blocks);
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
@@ -267,8 +268,9 @@ const makeWinBoard = (state, shift) => {
 
 	for (let b of state.blocks) {
 		if (Number(b.name) === Number(state.winBlock.id)) {
-			shiftedNames.push(state.winBlock);
-			notShiftedNames.push(state.winBlock);
+			const wb = { ...state.b, name: "GG", color: "#c0ca33" };
+			shiftedNames.push(wb);
+			notShiftedNames.push(wb);
 		} else if (Number(b.name) > Number(state.winBlock.id)) {
 			shiftedNames.push({
 				...b,
