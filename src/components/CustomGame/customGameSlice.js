@@ -22,7 +22,6 @@ const initialState = {
 	shownBlocks: [blockSample],
 
 	winBlock: {},
-  winBlockId: null,
 
 	X0: null,
 	Y0: null,
@@ -61,7 +60,7 @@ export const customGameSlice = createSlice({
 					state.blocks = [];
 					state.shownBlocks = [blockSample];
 					state.winBlock = null;
-          state.winBlockId = null;
+					state.winBlockId = null;
 					state.currentBlockName = 1;
 					state.takenCoords = [];
 					state.newBlock = null;
@@ -72,10 +71,14 @@ export const customGameSlice = createSlice({
 						...state.blocks.find((b) => b.name === 1),
 						name: "GG",
 						color: "#c0ca33",
+						id: 1,
 					};
-          state.winBlockId = 1;
+					state.winBlockId = 1;
 					break;
+				case 2:
+					state.shownBlocks = makeWinBoard(state);
 				default:
+					state.shownBlocks = makeWinBoard(state, true);
 					break;
 			}
 		},
@@ -90,16 +93,15 @@ export const customGameSlice = createSlice({
 			state.minumumEmptySpaces = Math.min(state.maxH, state.maxL);
 		},
 		changedWinBlock: (state, action) => {
-			console.log(action.payload);
 			state.winBlock = {
 				...state.blocks.find(
 					(b) => Number(b.name) === Number(action.payload)
 				),
 				name: "GG",
+				id: action.payload,
 				color: "#c0ca33",
 			};
-      state.winBlockId = action.payload;
-      // state.shownBlocks = 
+			state.shownBlocks = makeWinBoard(state);
 		},
 		handleDownPlayBoard: (state, action) => {
 			const { x, y } = action.payload;
@@ -122,6 +124,7 @@ export const customGameSlice = createSlice({
 				state.Y0 = y;
 				state.newBlock = {
 					name: state.currentBlockName,
+					id: state.currentBlockName,
 					x: x,
 					y: y,
 					h: 1,
@@ -164,6 +167,7 @@ export const customGameSlice = createSlice({
 							...state.newBlock,
 							name: "GG",
 							color: "#c0ca33",
+							id: 1,
 						});
 					state.currentBlockName += 1;
 					if (
@@ -172,6 +176,7 @@ export const customGameSlice = createSlice({
 					) {
 						state.maxSizeBlock = state.newBlock.name;
 					}
+
 					break;
 				case "delete":
 					if (
@@ -183,12 +188,11 @@ export const customGameSlice = createSlice({
 					state.blocks = bls;
 					state.maxSizeBlock = mxBl;
 					state.currentBlockName -= 1;
-
 					break;
 				default:
-					break;
+					return;
 			}
-
+   
 			state.shownBlocks = [...state.blocks];
 			state.takenCoords = calcBoardCoords(state.blocks);
 			state.coordsToBlocks = calcCoordsToBlocks(state.blocks);
@@ -247,34 +251,25 @@ function removedBlock(state) {
 		return [blHolder, null];
 	}
 	return [blHolder, state.maxSizeBlock];
-	// return blHolder;
 }
 
 function moveWinBlock(state, x, y) {
-	if (
-		x + state.winBlock.h - 1 < state.game.rows &&
-		y + state.winBlock.l - 1 < state.game.cols
-	) {
-		return { ...state.winBlock, x, y };
-	} else {
-		const new_x = Math.min(state.game.rows - state.winBlock.h, x);
-		const new_y = Math.min(state.game.cols - state.winBlock.l, y);
-		return { ...state.winBlock, x: new_x, y: new_y };
-	}
+	return {
+		...state.winBlock,
+		x: Math.min(state.game.rows - state.winBlock.h, x),
+		y: Math.min(state.game.cols - state.winBlock.l, y),
+	};
 }
 
-export const makeWinBoard = (winName) => (dispatch, getState) => {
-	if (!winName) return;
+const makeWinBoard = (state, shift) => {
 	let shiftedNames = [];
 	let notShiftedNames = [];
-	let winBlock = {};
 
-	for (let b of getState().blocks) {
-		if (b.name === winName) {
-			winBlock = { ...b, name: "GG", color: "#c0ca33" };
-			shiftedNames.push(winBlock);
-			notShiftedNames.push(winBlock);
-		} else if (Number(b.name) > Number(winName)) {
+	for (let b of state.blocks) {
+		if (Number(b.name) === Number(state.winBlock.id)) {
+			shiftedNames.push(state.winBlock);
+			notShiftedNames.push(state.winBlock);
+		} else if (Number(b.name) > Number(state.winBlock.id)) {
 			shiftedNames.push({
 				...b,
 				name: Number(b.name) - 1,
@@ -285,7 +280,8 @@ export const makeWinBoard = (winName) => (dispatch, getState) => {
 			notShiftedNames.push(b);
 		}
 	}
-	return [winBlock, shiftedNames, notShiftedNames];
+	if (shift) return shiftedNames;
+	else return notShiftedNames;
 };
 function changeNewBlockXY(state, x, y) {
 	const newBlock = { ...state.newBlock };

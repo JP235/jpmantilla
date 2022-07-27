@@ -4,7 +4,6 @@ import BoardCanvas from "./BoardCanvas";
 function BoardsDisplay(props) {
 	const { game, blocks, winBlock, className, type, invert } = props;
 	const { rows, cols } = game;
-
 	return (
 		<>
 			<BoardCanvas

@@ -144,7 +144,7 @@ function CustomGame() {
 		});
 		canvas.current.addEventListener("touchend", handleUpValue);
 		canvas.current.addEventListener("mouseup", handleUpValue);
-		document.addEventListener("mouseup", handleUpValue);
+		canvas.current.addEventListener("mauseleave", handleUpValue);
 
 		return () => {
 			canvas.current.removeEventListener("mousedown", handleDownValue);
@@ -153,7 +153,7 @@ function CustomGame() {
 			canvas.current.removeEventListener("touchend", handleUpValue);
 			canvas.current.removeEventListener("touchmove", trackValue);
 			canvas.current.removeEventListener("mouseup", handleUpValue);
-			document.removeEventListener("mouseup", handleUpValue);
+			canvas.current.removeEventListener("mauseleave", handleUpValue);
 		};
 	}, [step]);
 
