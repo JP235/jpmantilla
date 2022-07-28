@@ -1,7 +1,7 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
-import Protected from "../common/utils/Protected";
+import Protected from "../common/Protected";
 
 import Login from "../components/auth/Login/Login";
 import Logout from "../components/auth/Logout/Logout";
@@ -25,7 +25,7 @@ export default function AppRoutes() {
 				<Route path="/game/:gameCode" element={<PlayGame />} />
 
 				<Route element={<Protected />}>
-					<Route path="/custom/" element={<CustomGame />} />
+				<Route path="/custom/" element={<CustomGame />} />
 					<Route path="/listgames/" element={<ListGames />} />
 					<Route path="/logout" element={<Logout />} exact />
 					<Route path="/dashboard/" element={<UserDashboard />} />
