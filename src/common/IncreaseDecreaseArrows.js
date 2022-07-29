@@ -1,14 +1,10 @@
 function IncreaseDecreaseArrows(props) {
-	const name = props.name;
-	const value = props.value;
-	const onUp = props.onUp;
-	const onDown = props.onDown;
-	const direction = props.direction;
+  const {name, value, onUp, onDown, direction, ...rest} = props;
 	const className = `increase-decrease ${name}`;
 	
 
 	return (
-		<div className={className}>
+		<div className={className} {...rest}>
 			<span className="increase-decrease-name">{name}</span>
 			<input
 				type="image"

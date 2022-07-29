@@ -2,7 +2,7 @@ import React from "react";
 
 import "./CustomGame.css";
 
-import {  useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import { getPointCoords } from "../../common/canvas/getFromCanvas";
@@ -15,7 +15,7 @@ import {
 	nextStep,
 	changedCols,
 	changedRows,
-  changedWinBlock,
+	changedWinBlock,
 	handleDownPlayBoard,
 	trackMove,
 	handleEnd,
@@ -61,7 +61,7 @@ function CustomGame() {
 
 	const menuStepZero = (
 		<div className="step-zero">
-			<div className="rows-control">
+			<div className="rows-control" data-left="-100px">
 				<IncreaseDecreaseArrows
 					name="Rows"
 					value={rows}
@@ -92,7 +92,7 @@ function CustomGame() {
 	);
 	const menuStepTwo = (
 		<div className="step-two">
-			<label>Pick Win-Block: </label>
+			<p>Pick Win-Block: </p> &nbsp;
 			<select
 				id="Win-Block"
 				onChange={(e) => dispatch(changedWinBlock(e.target.value))}
@@ -117,7 +117,7 @@ function CustomGame() {
 					// dispatch(createGame(game, nameShift));
 				}}
 			>
-				SAVE GAME
+				PLAY GAME
 			</button>
 		</div>
 	);
@@ -144,7 +144,7 @@ function CustomGame() {
 		});
 		canvas.current.addEventListener("touchend", handleUpValue);
 		canvas.current.addEventListener("mouseup", handleUpValue);
-		canvas.current.addEventListener("mauseleave", handleUpValue);
+		canvas.current.addEventListener("mouseout", handleUpValue);
 
 		return () => {
 			canvas.current.removeEventListener("mousedown", handleDownValue);
@@ -153,7 +153,7 @@ function CustomGame() {
 			canvas.current.removeEventListener("touchend", handleUpValue);
 			canvas.current.removeEventListener("touchmove", trackValue);
 			canvas.current.removeEventListener("mouseup", handleUpValue);
-			canvas.current.removeEventListener("mauseleave", handleUpValue);
+			canvas.current.removeEventListener("mouseout", handleUpValue);
 		};
 	}, [step]);
 
@@ -177,7 +177,7 @@ function CustomGame() {
 					)}
 					{(step === 2 || step === 3) && (
 						<BoardsDisplay
-							blocks={step === 2 ? shownBlocks : blocks}
+							blocks={shownBlocks}
 							game={game}
 							winBlock={winBlock}
 							type="create"
